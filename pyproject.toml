@@ -24,3 +24,5 @@ addopts = "-q"
 
 [tool.ruff]
 line-length = 100
+# The two analysis scripts predate the package and are kept for reproducibility.
+exclude = ["bench/accuracy_vs_order.py", "bench/measure_ngram.py"]

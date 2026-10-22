@@ -15,7 +15,7 @@ class Model:
         self._restorer = restorer
 
     @classmethod
-    def load(cls, directory: Path | None = None) -> "Model":
+    def load(cls, directory: Path | None = None) -> Model:
         d = Path(directory) if directory is not None else DATA_DIR
         unigram = load_unigram(d / "uni.tsv")
         trie_path = d / "bi.trie"

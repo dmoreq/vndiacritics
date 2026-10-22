@@ -7,7 +7,6 @@ Compares, on one consistent grader, over the SAME candidate index:
 Reports accuracy + latency for each, on in-domain and out-of-domain text.
 """
 import math
-import re
 import time
 import unicodedata as u
 from collections import defaultdict

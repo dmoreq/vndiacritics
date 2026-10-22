@@ -1,0 +1,33 @@
+{
+  "contracts / business": {
+    "sentences": 15,
+    "accuracy": 0.9512,
+    "correct": 195,
+    "total": 205
+  },
+  "official documents / c\u00f4ng v\u0103n": {
+    "sentences": 12,
+    "accuracy": 0.9551,
+    "correct": 170,
+    "total": 178
+  },
+  "everyday / conversational": {
+    "sentences": 15,
+    "accuracy": 0.8989,
+    "correct": 169,
+    "total": 188
+  },
+  "news / long-form": {
+    "sentences": 13,
+    "accuracy": 0.9854,
+    "correct": 203,
+    "total": 206
+  },
+  "_overall": {
+    "sentences": 55,
+    "accuracy": 0.9485,
+    "correct": 737,
+    "total": 777,
+    "skipped": 0
+  }
+}

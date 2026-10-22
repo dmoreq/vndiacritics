@@ -11,7 +11,6 @@ import json
 import os
 import re
 import resource
-import sys
 import time
 import unicodedata as u
 from collections import defaultdict
@@ -90,7 +89,7 @@ def main():
     def restore_sent(s):
         res = []
         for tok in s.split():
-            m = re.match(r"^([^\wÀ-ỹ]*)(.*?)([^\wÀ-ỹ]*)$", tok, re.S)
+            m = re.match(r"^([^\wÀ-ỹ]*)(.*?)([^\wÀ-ỹ]*)$", tok, re.DOTALL)
             lead, core, trail = m.groups()
             if not core:
                 res.append(tok)

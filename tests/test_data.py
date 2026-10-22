@@ -26,7 +26,7 @@ def test_parse_count_table_skips_bad_rows(tmp_path):
 
 def test_parse_count_table_handles_crlf(tmp_path):
     p = tmp_path / "t.tsv"
-    p.write_bytes("ơi\t7\r\n".encode("utf-8"))
+    p.write_bytes("ơi\t7\r\n".encode())
     assert parse_count_table(p) == {"ơi": 7}
 
 

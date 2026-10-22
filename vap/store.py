@@ -40,7 +40,7 @@ class BigramStore:
         cls._meta_path(path).write_text(json.dumps(meta), encoding="utf-8")
 
     @classmethod
-    def load(cls, path: Path) -> "BigramStore":
+    def load(cls, path: Path) -> BigramStore:
         trie = marisa_trie.BytesTrie()
         trie.load(str(path))
         meta = json.loads(cls._meta_path(path).read_text(encoding="utf-8"))
