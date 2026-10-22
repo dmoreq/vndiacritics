@@ -91,3 +91,17 @@ def test_punctuation_only_token_is_not_duplicated():
 def test_preserves_whitespace_and_token_case(source, expected):
     r = make_restorer({"tôi": 500, "toi": 1, "yêu": 400, "yeu": 1}, {})
     assert r.restore(source) == expected
+
+
+@pytest.mark.parametrize("limit", [0, -1])
+def test_rejects_nonpositive_candidate_limit(limit):
+    uni = {"tôi": 500, "toi": 1}
+    with pytest.raises(ValueError, match="max_candidates must be positive"):
+        Restorer(uni, CandidateIndex(uni), {}, max_candidates=limit)
+
+
+@pytest.mark.parametrize("limit", [1, None])
+def test_accepts_positive_or_unlimited_candidate_limit(limit):
+    uni = {"tôi": 500, "toi": 1}
+    r = Restorer(uni, CandidateIndex(uni), {}, max_candidates=limit)
+    assert r.restore("toi") == "tôi"

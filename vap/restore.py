@@ -47,6 +47,8 @@ class Restorer:
         self._bi = bigram
         # Beam width. Measured on the reference corpus: K=8 costs 0.30 accuracy
         # points in-domain and gains 2.4x throughput; K=5 loses 1.6 points.
+        if max_candidates is not None and max_candidates <= 0:
+            raise ValueError("max_candidates must be positive")
         self._max_candidates = max_candidates
         self._v1 = len(unigram)
         self._t1 = sum(unigram.values())
