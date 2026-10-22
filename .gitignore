@@ -7,3 +7,5 @@ vap/data/*.trie
 vap/data/*.tsv
 vap/data/*.txt
 .hermes/
+Vietnamese-Accent-Prediction/
+*.tar.xz
