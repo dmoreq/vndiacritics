@@ -49,3 +49,23 @@ def test_token_count_never_changes():
     r = make_restorer(uni, {"con là": 3})
     src = "con la"
     assert len(r.restore(src).split()) == len(src.split())
+
+
+def test_punctuation_does_not_block_restoration():
+    """Corpus keys are bare syllables; 'đồng.' must still resolve to 'đồng.'."""
+    uni = {"đồng": 500, "dong": 1}
+    r = make_restorer(uni, {})
+    assert r.restore("dong.") == "đồng."
+    assert r.restore("(dong)") == "(đồng)"
+
+
+def test_punctuation_preserved_exactly():
+    uni = {"tôi": 500, "toi": 1}
+    r = make_restorer(uni, {})
+    assert r.restore('toi,"') == 'tôi,"'
+
+
+def test_leading_capital_preserved_with_punctuation():
+    uni = {"đồng": 500, "dong": 1}
+    r = make_restorer(uni, {})
+    assert r.restore("Dong.") == "Đồng."

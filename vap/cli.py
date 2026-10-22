@@ -11,14 +11,14 @@ import sys
 from pathlib import Path
 
 from vap.model import Model
-from vap.normalize import nfc, strip_accent
+from vap.normalize import nfc, strip_accent_keep_case
 
 
 def _run_accuracy(model: Model, gold_file: Path) -> int:
     from vap.eval import score, split_sentences
 
     gold = [nfc(s) for s in split_sentences(gold_file.read_text(encoding="utf-8"))]
-    pred = [model.restore(strip_accent(g)) for g in gold]
+    pred = [model.restore(strip_accent_keep_case(g)) for g in gold]
     r = score(gold, pred)
     print(
         f"accuracy={r.accuracy:.4f} correct={r.correct} "
@@ -33,7 +33,7 @@ def _run_stdin(model: Model) -> int:
         if not line.strip():
             print()
             continue
-        print(model.restore(strip_accent(line)))
+        print(model.restore(strip_accent_keep_case(line)))
     return 0
 
 

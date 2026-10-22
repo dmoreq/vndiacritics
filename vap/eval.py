@@ -37,5 +37,13 @@ def score(gold: list[str], pred: list[str]) -> Score:
 
 
 def split_sentences(text: str) -> list[str]:
-    """Split on sentence punctuation, dropping empties."""
-    return [s.strip() for s in re.split(r"[\.\!\n\;\?]", text) if s.strip()]
+    """Split into sentences the same way the reference implementation did.
+
+    Whitespace/punctuation normalisation happens BEFORE splitting, so that a stray
+    " : " between words is collapsed rather than becoming its own token. Getting this
+    order wrong shifts the token count (9020 vs 8995 on the reference corpus) and
+    makes accuracy numbers incomparable.
+    """
+    norm = re.sub(r"[\t\"':\(\)]", " ", text)
+    norm = re.sub(r"\s{2,}", " ", norm)
+    return [s.strip() for s in re.split(r"[\.\!\n\;\?]", norm) if s.strip()]

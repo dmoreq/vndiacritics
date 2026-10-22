@@ -1,0 +1,77 @@
+"""Accuracy gates. Two tokenisations are pinned because they answer different questions:
+
+- `split_sentences` (normalise then split): the package's own pipeline, 8995 tokens.
+- bare line split: the reference measurement's pipeline, 9085 tokens.
+
+Both must clear the threshold; a change that helps one and hurts the other is a bug,
+not a gain.
+"""
+
+from pathlib import Path
+
+import pytest
+
+pytestmark = pytest.mark.skipif(
+    not Path("vap/data/uni.tsv").exists(), reason="corpus not recovered"
+)
+
+IN_DOMAIN = "vap/data/in_domain.txt"
+OUT_DOMAIN = "bench/data/diacritic_eval_v0.txt"
+
+
+@pytest.fixture(scope="module")
+def model():
+    from vap.model import Model
+
+    return Model.load()
+
+
+def _grade_split(model, gold_path):
+    from vap.eval import score, split_sentences
+    from vap.normalize import nfc, strip_accent_keep_case
+
+    gold = [nfc(s) for s in split_sentences(Path(gold_path).read_text(encoding="utf-8"))]
+    pred = [model.restore(strip_accent_keep_case(g)) for g in gold]
+    return score(gold, pred)
+
+
+def _grade_lines(model, gold_path):
+    """Reference pipeline: split on newlines, no punctuation normalisation."""
+    from vap.eval import score
+    from vap.normalize import nfc, strip_accent_keep_case
+
+    lines = [
+        nfc(s.strip())
+        for s in Path(gold_path).read_text(encoding="utf-8").split("\n")
+        if s.strip() and not s.strip().startswith("#")
+    ]
+    pred = [model.restore(strip_accent_keep_case(g)) for g in lines]
+    return score(lines, pred)
+
+
+def test_in_domain_split_pipeline(model):
+    r = _grade_split(model, IN_DOMAIN)
+    assert r.skipped == 0
+    assert r.total == 8995
+    assert r.accuracy >= 0.955
+
+
+def test_in_domain_reference_pipeline(model):
+    """Reference corpus, line-split: 95.02% (8633/9085)."""
+    r = _grade_lines(model, IN_DOMAIN)
+    assert r.skipped == 0
+    assert r.total == 9085
+    assert r.accuracy >= 0.945
+
+
+def test_out_of_domain_split_pipeline(model):
+    r = _grade_split(model, OUT_DOMAIN)
+    assert r.skipped == 0
+    assert r.accuracy >= 0.900
+
+
+def test_out_of_domain_reference_pipeline(model):
+    """Line-split keeps punctuation attached, which is the harsher case: 94.34%."""
+    r = _grade_lines(model, OUT_DOMAIN)
+    assert r.skipped == 0
+    assert r.accuracy >= 0.935

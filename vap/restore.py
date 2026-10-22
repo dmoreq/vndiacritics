@@ -4,12 +4,15 @@ Design notes that must not be "cleaned up":
 
 1. The UNK penalty is applied whenever either the bigram count or the previous
    word's unigram count is zero. It is a strong negative constant. Removing this
-   branch costs about 19 accuracy points (measured 91.50 -> 71.57).
+   branch costs about 19 accuracy points (measured).
 2. The unigram prior is added ONLY on the second column (i == 1) and uses the
    PREVIOUS word's count. This mirrors the reference implementation; changing it
    to i == 2, or to the current word, moves accuracy by several points.
-3. Case is restored per character positionally against the original input,
-   because accent insertion does not change string length for these corpora.
+3. Punctuation is stripped from token edges before lookup and re-attached after.
+   Corpus keys are bare syllables, so looking up "đồng." silently fails and the
+   token passes through unaccented. This is the single biggest correctness trap.
+4. Case is restored per character positionally against the original input, because
+   accent insertion does not change string length for these corpora.
 """
 
 from __future__ import annotations
@@ -23,7 +26,7 @@ _MIN = float("-inf")
 
 
 class Counter(Protocol):
-    """Anything that can answer `count of key`, returning 0 when absent."""
+    """Anything that can answer `count of key`, returning `default` when absent."""
 
     def get(self, key: str, default: int = 0) -> int: ...
 
@@ -50,12 +53,30 @@ class Restorer:
             total = sum(bigram.values())  # type: ignore[attr-defined]
         self._unk = math.log(1.0 / (2 * (size + total + 1)))
 
-    def _columns(self, tokens: list[str]) -> list[list[str]]:
-        cols = []
+    @staticmethod
+    def _split_punct(token: str) -> tuple[str, str, str]:
+        """Split a token into (leading punctuation, core, trailing punctuation)."""
+        i, j = 0, len(token)
+        while i < j and not token[i].isalnum():
+            i += 1
+        while j > i and not token[j - 1].isalnum():
+            j -= 1
+        return token[:i], token[i:j], token[j:]
+
+    def _columns(self, tokens: list[str]) -> tuple[list[list[str]], list[tuple[str, str]]]:
+        cols: list[list[str]] = []
+        affixes: list[tuple[str, str]] = []
         for t in tokens:
-            forms = self._idx.candidates(t)
-            cols.append(forms if forms else [t.lower()])
-        return cols
+            lead, core, trail = self._split_punct(t)
+            if core:
+                forms = self._idx.candidates(core.lower())
+                if not forms:
+                    forms = [core.lower()]
+            else:
+                forms = [t]
+            cols.append(forms)
+            affixes.append((lead, trail))
+        return cols, affixes
 
     def _score(self, prev: str, cur: str) -> float:
         n2 = self._bi.get(prev + " " + cur, 0)
@@ -68,12 +89,13 @@ class Restorer:
         if not text.strip():
             return text
         tokens = text.split()
-        cols = self._columns(tokens)
+        cols, affixes = self._columns(tokens)
         if len(cols) == 1:
             chosen = [max(cols[0], key=lambda w: self._uni.get(w, 0))]
         else:
             chosen = self._viterbi(cols)
-        return self._reapply_case(text, " ".join(chosen))
+        pieces = [lead + word + trail for word, (lead, trail) in zip(chosen, affixes)]
+        return self._reapply_case(text, " ".join(pieces))
 
     def _viterbi(self, cols: list[list[str]]) -> list[str]:
         score = [[_MIN] * len(c) for c in cols]
