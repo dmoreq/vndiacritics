@@ -16,9 +16,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from vap.eval import split_sentences  # noqa: E402
-from vap.model import Model  # noqa: E402
-from vap.normalize import nfc, strip_accent_keep_case  # noqa: E402
+from vap.eval import split_sentences
+from vap.model import Model
+from vap.normalize import nfc, strip_accent_keep_case
 
 
 def load_corpus():

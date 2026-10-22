@@ -8,15 +8,14 @@ This measures whether such a rule is safe (no lost hits) and how much it covers.
 from __future__ import annotations
 
 import sys
-import time
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from vap.eval import split_sentences  # noqa: E402
-from vap.model import Model  # noqa: E402
-from vap.normalize import nfc, strip_accent_keep_case  # noqa: E402
+from vap.eval import split_sentences
+from vap.model import Model
+from vap.normalize import nfc, strip_accent_keep_case
 
 
 def main() -> int:
@@ -60,11 +59,11 @@ def main() -> int:
     print(f"pairs            : {pairs}")
     print(f"actual hits      : {hits} ({hits/pairs*100:.1f}%)")
     print()
-    print(f"Rule A (prev unigram == 0):")
+    print("Rule A (prev unigram == 0):")
     print(f"  would skip     : {rule_a_would_skip} ({rule_a_would_skip/pairs*100:.1f}%)")
     print(f"  WRONG to skip  : {rule_a_wrong}   <- must be 0 for safety")
     print()
-    print(f"Rule B (cur unigram == 0):")
+    print("Rule B (cur unigram == 0):")
     print(f"  would skip     : {rule_b_would_skip} ({rule_b_would_skip/pairs*100:.1f}%)")
     print(f"  WRONG to skip  : {rule_b_wrong}   <- must be 0 for safety")
     print()

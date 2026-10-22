@@ -14,9 +14,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from vap.eval import score, split_sentences  # noqa: E402
-from vap.model import Model  # noqa: E402
-from vap.normalize import nfc, strip_accent_keep_case  # noqa: E402
+from vap.eval import score, split_sentences
+from vap.model import Model
+from vap.normalize import nfc, strip_accent_keep_case
 
 IN = ROOT / "vap/data/in_domain.txt"
 OUT = ROOT / "bench/data/diacritic_eval_v0.txt"
@@ -52,7 +52,7 @@ def main() -> int:
         po, _, _ = run(model, so, k)
         ai = score(gi, pi).accuracy * 100
         ao = score(go, po).accuracy * 100
-        print(f"{str(k):>6} {ai:7.2f}% {ao:7.2f}% {rate:8.0f}")
+        print(f"{k!s:>6} {ai:7.2f}% {ao:7.2f}% {rate:8.0f}")
 
     print("\n=== pair memoisation sizing ===")
     r = model._restorer
