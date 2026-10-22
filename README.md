@@ -24,8 +24,8 @@ Apple M3, Python 3.13, single process, no GPU.
 
 | Dataset | Tokens | Accuracy | Sentences/s |
 |---|---:|---:|---:|
-| in-domain news (589 sentences) | 8995 | **95.66%** | 2,071 |
-| out-of-domain, all registers (55 sentences) | 883 | **91.39%** | 2,670 |
+| in-domain news (589 sentences) | 8995 | **96.00%** | 1,739 |
+| out-of-domain, all registers (55 sentences) | 883 | **95.24%** | 2,492 |
 | out-of-domain, news register | 206 | **98.54%** | |
 | out-of-domain, official documents | 178 | **95.51%** | |
 | out-of-domain, contracts | 205 | **95.12%** | |
@@ -33,13 +33,17 @@ Apple M3, Python 3.13, single process, no GPU.
 
 | Resource | Value |
 |---|---|
-| Load time | 0.26 s |
+| Load time | 0.29 s |
 | Resident memory | 113 MB |
 | Bigram table on disk | 22 MB (marisa-trie) |
 | Runtime dependencies | `marisa-trie` only |
 
 Accuracy is register-dependent by about 9 points, which is larger than the gap between
 competing models. Conversational text is the weak spot; news and official text are strong.
+
+Whitespace and letter case are preserved exactly as supplied: `restore()` copies the
+original spacing and re-applies case per token, so mixed-case and punctuated input
+round-trips without being normalised.
 
 ## How it works
 
@@ -50,6 +54,10 @@ competing models. Conversational text is the weak spot; news and official text a
    interpolated bigram counts with an UNK penalty (`vap/restore.py`).
 3. **Beam width 8.** Candidates are pruned by unigram count before the DP. Measured: 0.30
    accuracy points for 2.4x throughput.
+
+Known limitation: `so` is not disambiguated to `số` when followed by a number
+(`so 12` → `so 12`), because `đồng so` is 10x more frequent in the corpus than `đồng số`.
+Fixing it needs a digit-context feature, which is a retuning change, not a bug fix.
 
 Three details in `restore.py` are load-bearing and documented inline: the UNK penalty, the
 unigram prior's position, and stripping punctuation before lookup.
