@@ -94,13 +94,6 @@ class Restorer:
             affixes.append((lead, trail))
         return cols, affixes
 
-    def _score(self, prev: str, cur: str) -> float:
-        n2 = self._bi.get(prev + " " + cur, 0)
-        n1 = self._uni.get(prev, 0)
-        if n1 > 0 and n2 > 0:
-            return math.log((n2 + 1) / (n1 + 1))
-        return self._unk
-
     def restore(self, text: str) -> str:
         """Restore diacritics without disturbing the input's whitespace layout.
 
