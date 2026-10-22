@@ -1,0 +1,39 @@
+{
+  "load_s": 0.263,
+  "rss_mb": 113.2,
+  "in_domain_split": {
+    "accuracy": 0.9566,
+    "correct": 8605,
+    "total": 8995,
+    "skipped": 0,
+    "ms_per_sent_median": 0.449,
+    "sents_per_s": 1891
+  },
+  "in_domain_lines": {
+    "accuracy": 0.9472,
+    "correct": 8605,
+    "total": 9085,
+    "skipped": 0,
+    "ms_per_sent_median": 0.453,
+    "sents_per_s": 1943
+  },
+  "out_domain_split": {
+    "accuracy": 0.9139,
+    "correct": 807,
+    "total": 883,
+    "skipped": 0,
+    "ms_per_sent_median": 0.486,
+    "sents_per_s": 2495
+  },
+  "out_domain_lines": {
+    "accuracy": 0.9485,
+    "correct": 737,
+    "total": 777,
+    "skipped": 0,
+    "ms_per_sent_median": 0.442,
+    "sents_per_s": 2212
+  },
+  "vap/data/uni.tsv": 2.18,
+  "vap/data/bi.trie": 22.03,
+  "vap/data/bi.meta.json": 0.0
+}
