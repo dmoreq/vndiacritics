@@ -69,3 +69,9 @@ def test_leading_capital_preserved_with_punctuation():
     uni = {"đồng": 500, "dong": 1}
     r = make_restorer(uni, {})
     assert r.restore("Dong.") == "Đồng."
+
+
+def test_punctuation_only_token_is_not_duplicated():
+    r = make_restorer({"tôi": 500, "toi": 1, "yêu": 400, "yeu": 1}, {})
+    assert r.restore("toi ... yeu") == "tôi ... yêu"
+    assert r.restore("toi !!! yeu") == "tôi !!! yêu"

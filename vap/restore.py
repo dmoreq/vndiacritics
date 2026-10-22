@@ -83,7 +83,10 @@ class Restorer:
                     # recover a form whose unigram count is far below the rest.
                     forms = sorted(forms, key=lambda w: -uni_get(w, 0))[:k]
             else:
-                forms = [t]
+                # Punctuation-only token: _split_punct returned (t, "", ""), so an
+                # empty core plus the whole token as leading affix rebuilds it exactly
+                # once. Using [t] here duplicated the token.
+                forms = [""]
             cols.append(forms)
             affixes.append((lead, trail))
         return cols, affixes
