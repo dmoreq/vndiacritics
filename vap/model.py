@@ -19,7 +19,12 @@ class Model:
         d = Path(directory) if directory is not None else DATA_DIR
         unigram = load_unigram(d / "uni.tsv")
         trie_path = d / "bi.trie"
-        if not trie_path.exists():
+        # The trie and its metadata sidecar are one cache artifact: a trie without
+        # its sidecar cannot answer size/total, so rebuilding both is cheaper than a
+        # partial load. This covers a MISSING sidecar only -- not a stale or corrupt
+        # one, which would need an atomic cache protocol.
+        meta_path = trie_path.with_suffix(".meta.json")
+        if not trie_path.exists() or not meta_path.exists():
             BigramStore.build(load_bigram(d / "bi.tsv"), trie_path)
         store = BigramStore.load(trie_path)
         restorer = Restorer(unigram, CandidateIndex(unigram), store)

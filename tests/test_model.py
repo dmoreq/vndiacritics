@@ -36,3 +36,17 @@ def test_uses_trie_not_dict(tmp_path):
     )
     m = Model.load(tmp_path)
     assert m.restore("cong con") == "công con"
+
+
+def test_missing_metadata_rebuilds_trie_pair(tmp_path):
+    from vap.model import Model
+    from vap.store import BigramStore
+
+    (tmp_path / "uni.tsv").write_text("tôi\t500\ntoi\t1\n", encoding="utf-8")
+    (tmp_path / "bi.tsv").write_text("tôi tôi\t3\n", encoding="utf-8")
+    trie_path = tmp_path / "bi.trie"
+    BigramStore.build({"tôi tôi": 3}, trie_path)
+    trie_path.with_suffix(".meta.json").unlink()
+    model = Model.load(tmp_path)
+    assert trie_path.with_suffix(".meta.json").exists()
+    assert model.restore("toi") == "tôi"
