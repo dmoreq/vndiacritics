@@ -1,3 +1,5 @@
+import pytest
+
 from vap.index import CandidateIndex
 from vap.restore import Restorer
 
@@ -75,3 +77,17 @@ def test_punctuation_only_token_is_not_duplicated():
     r = make_restorer({"tôi": 500, "toi": 1, "yêu": 400, "yeu": 1}, {})
     assert r.restore("toi ... yeu") == "tôi ... yêu"
     assert r.restore("toi !!! yeu") == "tôi !!! yêu"
+
+
+@pytest.mark.parametrize(
+    ("source", "expected"),
+    [
+        ("TOI  YEU", "TÔI  YÊU"),
+        ("TOI\tYEU", "TÔI\tYÊU"),
+        ("  TOI YEU  ", "  TÔI YÊU  "),
+        ("TOI\nYEU", "TÔI\nYÊU"),
+    ],
+)
+def test_preserves_whitespace_and_token_case(source, expected):
+    r = make_restorer({"tôi": 500, "toi": 1, "yêu": 400, "yeu": 1}, {})
+    assert r.restore(source) == expected

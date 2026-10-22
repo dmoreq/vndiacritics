@@ -18,6 +18,7 @@ Design notes that must not be "cleaned up":
 from __future__ import annotations
 
 import math
+import re
 from typing import Protocol
 
 from vap.index import CandidateIndex
@@ -99,16 +100,29 @@ class Restorer:
         return self._unk
 
     def restore(self, text: str) -> str:
+        """Restore diacritics without disturbing the input's whitespace layout.
+
+        Whitespace between tokens is copied verbatim from the source rather than
+        rejoined with single spaces, and case is reapplied per token. Doing it on the
+        whole joined string previously shifted every character after the first extra
+        space, which corrupted case in the rest of the sentence.
+        """
         if not text.strip():
             return text
-        tokens = text.split()
-        cols, affixes = self._columns(tokens)
+        matches = list(re.finditer(r"\S+", text))
+        cols, affixes = self._columns([m.group() for m in matches])
         if len(cols) == 1:
             chosen = [max(cols[0], key=lambda w: self._uni.get(w, 0))]
         else:
             chosen = self._viterbi(cols)
-        pieces = [lead + word + trail for word, (lead, trail) in zip(chosen, affixes)]
-        return self._reapply_case(text, " ".join(pieces))
+        out: list[str] = []
+        end = 0
+        for m, word, (lead, trail) in zip(matches, chosen, affixes):
+            out.append(text[end : m.start()])
+            out.append(self._reapply_case(m.group(), lead + word + trail))
+            end = m.end()
+        out.append(text[end:])
+        return "".join(out)
 
     def _viterbi(self, cols: list[list[str]]) -> list[str]:
         score = [[_MIN] * len(c) for c in cols]
