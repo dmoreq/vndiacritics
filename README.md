@@ -24,8 +24,8 @@ Apple M3, Python 3.13, single process, no GPU.
 
 | Dataset | Tokens | Accuracy | Sentences/s |
 |---|---:|---:|---:|
-| in-domain news (589 sentences) | 8995 | **96.00%** | 1,739 |
-| out-of-domain, all registers (55 sentences) | 883 | **95.24%** | 2,492 |
+| in-domain news (589 sentences) | 8995 | **96.01%** | 2,186 |
+| out-of-domain, all registers (55 sentences) | 883 | **95.24%** | 2,879 |
 | out-of-domain, news register | 206 | **98.54%** | |
 | out-of-domain, official documents | 178 | **95.51%** | |
 | out-of-domain, contracts | 205 | **95.12%** | |
@@ -54,6 +54,9 @@ round-trips without being normalised.
    interpolated bigram counts with an UNK penalty (`vap/restore.py`).
 3. **Beam width 8.** Candidates are pruned by unigram count before the DP. Measured: 0.30
    accuracy points for 2.4x throughput.
+4. **Rare-pair skip.** A pair where either word's unigram count is below `1e-4 * |V|` scores
+   UNK without consulting the table. Avoids ~33% of bigram lookups; measured cost 0.01
+   accuracy points. Set `Restorer(..., bigram_skip_below=0)` to disable.
 
 Known limitation: `so` is not disambiguated to `số` when followed by a number
 (`so 12` → `so 12`), because `đồng so` is 10x more frequent in the corpus than `đồng số`.

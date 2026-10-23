@@ -236,3 +236,74 @@ speed back should vectorise or compile the DP, not undo the correctness fix.
 (3478) is 10x `đồng số` (359) — so it is the known digit-context limitation, not damage from
 this round. Documented in the README rather than silently patched, because fixing it is a
 retuning change that would need its own accuracy measurement.
+
+---
+
+## 8. Throughput optimization: 1,827 → 2,186 sent/s
+
+**Goal (user)**: reach 2,000 sent/s while keeping accuracy ≥ 95%.
+**Result**: **2,186 sent/s at 96.01% in-domain** (out-of-domain 95.24%). Both gates pass.
+
+### Baseline and method
+
+`bench/baseline.py` times the whole corpus in one span (no clock calls inside the loop),
+median of 5, and reports both accuracies from the same process.
+
+| | Before | After | Delta |
+|---|---:|---:|---:|
+| In-domain accuracy | 96.00% | **96.01%** | +0.01 |
+| In-domain throughput | 1,827 sent/s | **2,186 sent/s** | **+19.6%** |
+| Out-of-domain throughput | 2,713 sent/s | **2,879 sent/s** | +6.1% |
+
+Three independent runs after the change: 2,137 / 2,204 / 2,218 sent/s. Accuracy was
+96.01% in all three.
+
+### What was changed
+
+One change, in `Restorer._viterbi`: when either word of a pair has a unigram count below
+`1e-4 * |V|`, the bigram lookup is skipped and the pair scores UNK.
+
+**Why this is nearly free.** A skipped pair gets exactly the score a genuine miss gets.
+So the only possible harm is losing a real bigram hit that would have flipped the argmax.
+Measured directly by diffing the chosen path against the unmodified decoder:
+
+| Metric | Value |
+|---|---:|
+| Trie walks avoided | ~33% |
+| Columns whose choice changed | **1 of 8,993 (0.011%)** |
+| Accuracy cost | 0.01 points |
+
+### Why the threshold is relative, not absolute
+
+The first implementation used a hardcoded default of 20. It passed the accuracy gates
+but **broke two existing tests**: `test_context_overrides_unigram` and
+`test_uses_trie_not_dict` both use toy vocabularies where a legitimate word has count 10.
+With a threshold of 20 that word was skipped, its real bigram was ignored, and the wrong
+form won.
+
+A sweep confirmed the cliff is sharp:
+
+| Threshold | `restore("cong con")` |
+|---:|---|
+| 0 / 2 / 5 / 10 | `công con` (correct) |
+| 11 / 15 / 20 | `công còn` (**wrong**) |
+
+An absolute count cannot be right for both a 4-word test fixture and a 216k-word corpus.
+The default is now `int(1e-4 * |V|)`, which yields 21 on the real corpus and 0 on small
+tables. `bigram_skip_below=0` disables the skip entirely.
+
+A second attempt used `1e-4 * total_tokens` instead of `1e-4 * |V|`. That produced 40,050
+and dropped in-domain accuracy to 91.12% — a 5-point regression caught by the accuracy
+gate before commit. Recorded because the two variants look equally reasonable on paper.
+
+### Hypotheses tested and rejected earlier
+
+From `docs/reports/2026-10-23-bottleneck-analysis.md`: miss-prediction via the left word
+alone (0.04% coverage, 19 unsafe skips) and pair memoisation (32.6% repeat rate) were both
+measured and rejected. The skip adopted here works because it keys on **both** sides and
+exploits the fact that a skipped lookup is indistinguishable from a miss.
+
+### Remaining headroom
+
+The DP is still ~85% of wall time. Getting substantially past ~2,200 sent/s needs
+numpy vectorisation, `mypyc`, or a Rust extension — Python-level tuning is exhausted.
