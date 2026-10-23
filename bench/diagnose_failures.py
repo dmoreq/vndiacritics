@@ -9,7 +9,6 @@ For each, record what the lattice looked like and why the decoder chose wrongly.
 
 from __future__ import annotations
 
-import math
 import sys
 from collections import Counter
 from pathlib import Path
@@ -17,7 +16,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from vap.eval import score, split_sentences
+from vap.eval import split_sentences
 from vap.model import Model
 from vap.normalize import nfc, strip_accent_keep_case
 
@@ -36,7 +35,7 @@ def trace(model, sent, gold_sent):
     import re
 
     matches = list(re.finditer(r"\S+", sent))
-    cols, affixes = r._columns([m.group() for m in matches])
+    cols, _affixes = r._columns([m.group() for m in matches])
     if len(cols) < 2:
         return None
     chosen = r._viterbi(cols)
@@ -84,11 +83,7 @@ def main() -> int:
     print("=" * 78)
     a_rows = []
     for g, b, o in zip(gold, pred_base, pred_opt):
-        for gb, ob in zip(b.split(), o.split()):
-            gtok = None
-            tg = g.split()
-            # align by index
-            idx = b.split().index(gb) if gb in b.split() else -1
+        tg = g.split()
         for i, (gb, ob) in enumerate(zip(b.split(), o.split())):
             gt = tg[i] if i < len(tg) else "?"
             if gb.lower() == gt.lower() and ob.lower() != gt.lower():

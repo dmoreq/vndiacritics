@@ -10,7 +10,6 @@ raw counts. Test three rules and measure the full corpus each time.
 
 from __future__ import annotations
 
-import math
 import statistics
 import sys
 import time
