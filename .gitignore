@@ -10,3 +10,10 @@ vap/data/*.txt
 Vietnamese-Accent-Prediction/
 *.tar.xz
 .tmp/
+
+# Generated clean corpus (rebuild with scripts/make_clean_corpus.py)
+vap/data-clean/*.tsv
+vap/data-clean/*.txt
+vap/data-clean/*.trie
+vap/data-clean/*.meta.json
+!vap/data-clean/typos.json

@@ -1,0 +1,30 @@
+{
+  "data": "vap/data-clean",
+  "gold": "/Users/quy.doan/Workspace/personal/vietnam-accent/vap/data/in_domain.txt",
+  "in_domain": {
+    "accuracy": 0.9603,
+    "sent_per_s": 2660
+  },
+  "out_domain": {
+    "accuracy": 0.9536,
+    "sent_per_s": 3718
+  },
+  "in_domain_runs": [
+    2471,
+    2670,
+    2284,
+    2660,
+    2681
+  ],
+  "out_domain_runs": [
+    3641,
+    3718,
+    3621,
+    3738,
+    3757
+  ],
+  "in_domain_range": [
+    2284,
+    2681
+  ]
+}
