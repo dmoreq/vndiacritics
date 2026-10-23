@@ -1,0 +1,24 @@
+{
+  "in_domain": {
+    "accuracy": 0.9601,
+    "sent_per_s": 2218
+  },
+  "out_domain": {
+    "accuracy": 0.9524,
+    "sent_per_s": 3173
+  },
+  "in_domain_runs": [
+    2270,
+    1806,
+    2205,
+    2218,
+    2271
+  ],
+  "out_domain_runs": [
+    3128,
+    3213,
+    3173,
+    3197,
+    2938
+  ]
+}

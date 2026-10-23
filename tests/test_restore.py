@@ -105,3 +105,58 @@ def test_accepts_positive_or_unlimited_candidate_limit(limit):
     uni = {"tôi": 500, "toi": 1}
     r = Restorer(uni, CandidateIndex(uni), {}, max_candidates=limit)
     assert r.restore("toi") == "tôi"
+
+
+def test_low_count_candidates_do_not_walk_the_bigram_table():
+    """A below-threshold right-hand candidate must not cause a trie lookup.
+
+    Isolates the skip only: `toi` has count 1, so no `toi <something>` key may be
+    requested. The chosen form is deliberately not asserted -- the first-column
+    decision is governed by the unigram prior, which is out of scope here.
+    """
+    uni = {"tôi": 50_000, "toi": 1, "yêu": 50_000, "yeu": 1}
+    bi = {"tôi yêu": 9_000, "toi yêu": 900_000}
+    calls = []
+
+    class CountingBi(dict):
+        def get(self, key, default=0):
+            calls.append(key)
+            return super().get(key, default)
+
+    # Threshold set explicitly: it is scaled from vocabulary size by default, and a
+    # 4-word toy table yields 0, which would disable the skip under test.
+    r = Restorer(
+        uni,
+        CandidateIndex(uni),
+        CountingBi(bi),
+        bigram_size=2,
+        bigram_total=909_000,
+        bigram_skip_below=20,
+    )
+    r.restore("toi yeu")
+    assert calls, "expected the high-count candidate to still be looked up"
+    assert not any(k.startswith("toi ") for k in calls), calls
+
+
+def test_threshold_zero_disables_the_skip():
+    """With the threshold off, every pair is looked up."""
+
+    class CountingBi(dict):
+        calls = 0
+
+        def get(self, key, default=0):
+            CountingBi.calls += 1
+            return super().get(key, default)
+
+    uni = {"tôi": 50_000, "toi": 1}
+    bi = CountingBi({"toi toi": 5})
+    r = Restorer(
+        uni,
+        CandidateIndex(uni),
+        bi,
+        bigram_size=1,
+        bigram_total=5,
+        bigram_skip_below=0,
+    )
+    r.restore("toi toi")
+    assert CountingBi.calls > 0

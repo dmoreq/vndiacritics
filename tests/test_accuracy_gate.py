@@ -53,7 +53,7 @@ def test_in_domain_split_pipeline(model):
     r = _grade_split(model, IN_DOMAIN)
     assert r.skipped == 0
     assert r.total == 8995
-    assert r.accuracy >= 0.958  # measured 96.00%
+    assert r.accuracy >= 0.959  # measured 96.01%
 
 
 def test_in_domain_reference_pipeline(model):
