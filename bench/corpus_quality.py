@@ -16,7 +16,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from vap.data import parse_count_table, DATA_DIR
+from vap.data import DATA_DIR
 from vap.eval import score, split_sentences
 from vap.model import Model
 from vap.normalize import nfc, strip_accent_keep_case
