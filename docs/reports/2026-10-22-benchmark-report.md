@@ -341,3 +341,64 @@ given run depends on machine load: it does in the median case, not in every case
 
 An attempt to measure under controlled priority (`taskpolicy -b`) was abandoned: background
 QoS dropped throughput to ~470 sent/s, which measures the scheduler, not the code.
+
+### Accuracy effect of the skip, token by token
+
+Measured by running the shipped model twice on identical input, once with
+`bigram_skip_below=0` (baseline) and once at the shipped default (21):
+
+| | Baseline (skip off) | Optimized (skip on) | Delta |
+|---|---:|---:|---:|
+| In-domain accuracy | 96.00% | **96.01%** | +0.01 |
+| In-domain correct | 8635 / 8995 | **8636 / 8995** | **+1** |
+| Out-of-domain accuracy | 95.24% | **95.24%** | 0.00 |
+| Out-of-domain correct | 841 / 883 | 841 / 883 | 0 |
+| Skipped sentences | 0 | 0 | — |
+
+Net effect: **one additional correct token**, none lost on the out-of-domain set.
+
+But the net figure hides churn. **360 tokens changed**, split as:
+
+| Outcome | Count |
+|---|---:|
+| **FIXED** (was wrong, now right) | **356** |
+| **BROKE** (was right, now wrong) | **4** |
+| Changed but still wrong | 0 |
+
+So the skip is not a no-op that happens to preserve the score — it rewrites 4% of tokens
+and the two directions very nearly cancel. The 356 fixes come from cases where consulting
+the table surfaced a spurious bigram that pulled the path the wrong way; skipping let the
+unigram prior decide correctly:
+
+| Count | Gold | Before | After |
+|---:|---|---|---|
+| 14 | `còn` | `con` | `còn` |
+| 8 | `nên` | `nền` | `nên` |
+| 7 | `Dòng` | `Đồng` | `Dòng` |
+| 7 | `từ` | `tu` | `từ` |
+| 7 | `hai` | `hài` | `hai` |
+| 6 | `hong` | `hồng` | `hong` |
+| 6 | `kong` | `kông` | `kong` |
+| 5 | `những` | `nhưng` | `những` |
+
+The 4 regressions, listed in full because there are only four:
+
+| Gold | Before | After |
+|---|---|---|
+| `usd` | `usd` | `ưsd` |
+| `bệnh` | `bệnh` | `bẹnh` |
+| `lượt` | `lượt` | `luợt` |
+| `góp` | `góp` | `gớp` |
+
+These are rare words whose only useful context was a bigram now skipped. `usd` gaining a
+diacritic is the most clearly wrong of the four.
+
+**Honest reading**: the +0.01 is real but it is a net of +356/−4, not evidence that the
+skip is accuracy-neutral. On a corpus where rare words carry more of the signal, the
+balance could invert. The threshold is exposed for that reason; anyone tuning for a
+different domain should re-measure rather than assume.
+
+This also explains why earlier measurement of "1 column changed" understated the churn: that
+count compared final column choices, while this one compares token strings. 4 columns changed
+decision, but token-level edits ripple through 360 positions because one wrong column shifts
+its neighbours.
