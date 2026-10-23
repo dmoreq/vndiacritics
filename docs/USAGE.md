@@ -118,6 +118,12 @@ nhưng vẫn sai vì chuỗi bị đứt.
 **Ảnh hưởng**: mọi văn bản có số, phần trăm, mã, ngày tháng — tức là hầu hết văn bản hành
 chính và báo cáo.
 
+Nguyên nhân sâu hơn (đã chẩn đoán, xem
+[2026-10-23-number-context-root-cause.md](reports/2026-10-23-number-context-root-cause.md)):
+khi context đứt, model có thể chọn một **từ hiếm là typo trong corpus** thay vì từ đúng phổ
+biến, vì cặp xuất hiện 2 lần với mẫu số 53 cho tỷ lệ cao hơn cặp xuất hiện 71,291 lần với
+mẫu số 2.9 triệu. Đây là overfit vào dữ liệu thưa, không chỉ là mất context.
+
 Câu ngắn không có số thì đúng:
 ```
 thang 12   -> tháng 12    ✓
