@@ -120,9 +120,13 @@ chính và báo cáo.
 
 Nguyên nhân sâu hơn (đã chẩn đoán, xem
 [2026-10-23-number-context-root-cause.md](reports/2026-10-23-number-context-root-cause.md)):
-khi context đứt, model có thể chọn một **từ hiếm là typo trong corpus** thay vì từ đúng phổ
-biến, vì cặp xuất hiện 2 lần với mẫu số 53 cho tỷ lệ cao hơn cặp xuất hiện 71,291 lần với
-mẫu số 2.9 triệu. Đây là overfit vào dữ liệu thưa, không chỉ là mất context.
+khi context đứt, model có thể chọn một **từ rất hiếm** thay vì từ đúng phổ biến, vì cặp xuất
+hiện 2 lần với mẫu số 53 cho tỷ lệ cao hơn cặp xuất hiện 71,291 lần với mẫu số 2.9 triệu.
+Đây là overfit vào dữ liệu thưa, không chỉ là mất context.
+
+Lưu ý: `tróng` (trong câu ví dụ trên) **không phải lỗi chính tả** — nó là từ thật trong tiếng
+Việt (nghĩa "hết nước, khô kiệt", vd *giếng tróng*) và được cả 5 từ điển đối chiếu chứng thực.
+Lỗi là model **chọn sai từ**, không phải corpus bẩn.
 
 Câu ngắn không có số thì đúng:
 ```

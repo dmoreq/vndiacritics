@@ -9,3 +9,4 @@ vap/data/*.txt
 .hermes/
 Vietnamese-Accent-Prediction/
 *.tar.xz
+.tmp/
