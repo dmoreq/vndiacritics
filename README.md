@@ -24,8 +24,12 @@ Apple M3, Python 3.13, single process, no GPU.
 
 | Dataset | Tokens | Accuracy | Sentences/s |
 |---|---:|---:|---:|
-| in-domain news (589 sentences) | 8995 | **96.01%** | 2,186 |
+| in-domain news (589 sentences) | 8995 | **96.01%** | 2,182 (median of 8; 1,892-2,294) |
 | out-of-domain, all registers (55 sentences) | 883 | **95.24%** | 2,879 |
+
+Throughput was measured on a machine under load, so treat the median as indicative and the
+speedup as the reliable figure: 1,841 → 2,195 sent/s (**1.19x**) from the rare-pair skip,
+measured A/B within one process. Accuracy is stable at 96.01% across every run.
 | out-of-domain, news register | 206 | **98.54%** | |
 | out-of-domain, official documents | 178 | **95.51%** | |
 | out-of-domain, contracts | 205 | **95.12%** | |

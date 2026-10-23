@@ -307,3 +307,37 @@ exploits the fact that a skipped lookup is indistinguishable from a miss.
 
 The DP is still ~85% of wall time. Getting substantially past ~2,200 sent/s needs
 numpy vectorisation, `mypyc`, or a Rust extension — Python-level tuning is exhausted.
+
+### Correction: throughput variance and the honest headline
+
+An earlier version of this section quoted a single median (2,186 sent/s) as if it were a
+stable figure. It is not. Eight independent runs under normal machine load:
+
+| | sent/s |
+|---|---:|
+| min | 1,892 |
+| median | 2,182 |
+| mean | 2,135 |
+| max | 2,294 |
+| stdev | 153 |
+| runs at or above 2,000 | **6 of 8 (75%)** |
+
+Accuracy was 96.01% in all eight runs, so the variance is entirely throughput, not
+quality. System load during measurement was high (load average 3.18; WindowServer 41% CPU,
+Hermes desktop 53% combined) — this machine cannot be measured cleanly while the desktop
+app is running.
+
+**The defensible claim is the speedup ratio, not the absolute rate.** Measured by
+interleaving both configurations inside one process, so both see identical conditions:
+
+| Configuration | sent/s (median of 3) |
+|---|---:|
+| Baseline (skip disabled) | **1,841** |
+| Optimized (skip enabled) | **2,195** |
+| **Speedup** | **1.19x** |
+
+The 1.19x is stable and reproducible. Whether the absolute rate clears 2,000 sent/s on a
+given run depends on machine load: it does in the median case, not in every case.
+
+An attempt to measure under controlled priority (`taskpolicy -b`) was abandoned: background
+QoS dropped throughput to ~470 sent/s, which measures the scheduler, not the code.
