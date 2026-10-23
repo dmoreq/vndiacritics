@@ -25,9 +25,3 @@ class CandidateIndex:
 
     def candidates(self, token: str) -> list[str]:
         return self._forms.get(strip_accent(token), [])
-
-    def best(self, token: str) -> str | None:
-        forms = self.candidates(token)
-        if not forms:
-            return None
-        return max(forms, key=self._unigram.__getitem__)

@@ -36,10 +36,3 @@ def load_unigram(path: Path | None = None) -> dict[str, int]:
 
 def load_bigram(path: Path | None = None) -> dict[str, int]:
     return parse_count_table(path or DATA_DIR / "bi.tsv")
-
-
-def load_accent_groups(path: Path | None = None) -> list[str]:
-    """AccentInfo format: each line is a run of mutually substitutable characters."""
-    p = path or DATA_DIR / "accent_groups.txt"
-    with open(p, encoding="utf-8") as fh:
-        return [line.rstrip("\r\n") for line in fh if line.strip()]

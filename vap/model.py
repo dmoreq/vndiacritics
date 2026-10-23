@@ -17,6 +17,13 @@ class Model:
     @classmethod
     def load(cls, directory: Path | None = None) -> Model:
         d = Path(directory) if directory is not None else DATA_DIR
+        # The corpus is not shipped in the wheel (it is rebuilt from git history).
+        # Fail with the command that fixes it instead of a bare FileNotFoundError.
+        if not (d / "uni.tsv").exists():
+            raise FileNotFoundError(
+                f"corpus not found at {d}. Build it with:  ./scripts/recover_data.sh  "
+                f"(or pass directory=... pointing at a corpus directory)"
+            )
         unigram = load_unigram(d / "uni.tsv")
         trie_path = d / "bi.trie"
         # The trie and its metadata sidecar are one cache artifact: a trie without

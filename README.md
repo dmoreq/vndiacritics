@@ -3,12 +3,17 @@
 Restores Vietnamese diacritics on text written without them, in pure Python, on CPU.
 
 ```python
-from vap.model import Model
+from vap import Model
 
 m = Model.load()
 m.restore("toi yeu viet nam")          # 'tôi yêu việt nam'
 m.restore("Hop dong so 02/HD/2025")    # 'Hợp đồng số 02/HD/2025'
 ```
+
+The corpus is **not shipped in the wheel** (it is rebuilt from git history). Install the
+package, then run `./scripts/recover_data.sh` once, or point `Model.load(directory=...)` at
+an existing corpus directory. Calling `Model.load()` without a corpus raises an error
+naming that command.
 
 Command line:
 

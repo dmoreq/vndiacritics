@@ -48,8 +48,7 @@ def main() -> int:
             dst.write(line)
             kept_bi += 1
 
-    for name in ("in_domain.txt", "accent_groups.txt"):
-        (DST / name).write_bytes((SRC / name).read_bytes())
+    (DST / "in_domain.txt").write_bytes((SRC / "in_domain.txt").read_bytes())
 
     print(f"uni: kept {kept_uni:,}  dropped {dropped_uni:,}")
     print(f"bi : kept {kept_bi:,}  dropped {dropped_bi:,}")

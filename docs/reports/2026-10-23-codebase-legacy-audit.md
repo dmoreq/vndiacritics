@@ -8,6 +8,9 @@ versus what is legacy, unreachable, or would ship broken.
 Every verdict below names the probe that produced it. Where I had a guess that the
 probe refuted, the refutation is recorded.
 
+**Status: applied.** Section 5 lists what was changed and how it was verified. Test count
+went 59 to 58 because one test covered a deleted method.
+
 ---
 
 ## 1. Package: what it actually is
@@ -262,15 +265,41 @@ longer match the shipped corpus, which invites a reader to distrust the measurem
 
 ---
 
-## 5. Questions before deleting anything
+## 5. Resolutions applied
 
-**Q1 (blocking)**: F7 proposes deleting 15 of 20 bench scripts. They are the only way to
-re-derive the numbers in eight committed reports. Do you want them (a) deleted, (b) moved
-to `bench/archive/` with a README explaining each is historical, or (c) kept as-is?
+All findings were acted on. Decisions: archive the historical scripts, ship code-only,
+delete the unused helper.
 
-**Q2**: F1 — should the package ship the corpus (~100 MB wheel) or ship code-only and fail
-with a clear instruction? I recommend code-only.
+| Finding | Action | Verification |
+|---|---|---|
+| F1 wheel cannot run | Excluded `vap/data/**` and `vap/data-clean/**` from the wheel; `Model.load()` now raises `FileNotFoundError` naming `scripts/recover_data.sh` | Wheel is 19.4 KB. Import-without-corpus prints the instruction; `Model.load(<real dir>)` still returns `tôi yêu việt nam` |
+| F2 `typos.json` shipped | Excluded with the data tree | Not in the wheel |
+| F3 no facade | `vap/__init__.py` exports `Model`, `strip_accent`, `strip_accent_keep_case` | `import vap; vap.__all__` verified from the installed wheel |
+| F4 `load_accent_groups` dead | Function deleted; `accent_groups.txt` no longer produced by `recover_data.sh` or copied by `make_clean_corpus.py` | `grep -r accent_groups vap/` returns nothing |
+| F5 `CandidateIndex.best` unused | Method and its test deleted | 58 tests pass (was 59) |
+| F7 20 bench scripts | 15 moved to `bench/archive/` with a README mapping each to its report; `ROOT` depth corrected in 13 of them | `ruff` clean; active bench is 5 scripts |
+| F9 lint exclusion | Now `exclude = ["bench/archive"]` | — |
+| F10 stale numbers in `store.py` | Corrected to the measured 5,553,699 bigrams / 660 MB dict / 22 MB trie / 0.3 s | — |
 
-**Q3**: F5 — delete `CandidateIndex.best()` plus its test, or keep as public API?
+### Not fixed, deliberately
 
-I have not deleted or modified anything. This is a read-only audit.
+- **F6** (`bigram_size` / `bigram_total`): kept. They are what let unit tests drive
+  `Restorer` with a plain dict instead of a trie.
+- **F8** (duplicate result JSONs): `bench/baseline_results.json` is still written by the
+  default tag. Harmless once `benchmark.py` moved to the archive; not worth churn.
+- **Two archived scripts hardcode absolute paths** (`accuracy_vs_order.py`,
+  `measure_ngram.py` contain `/Users/quy.doan/...`). They are archive-only, so this is
+  recorded rather than fixed — editing them would imply they are re-runnable today.
+
+### Post-cleanup verification
+
+| Check | Result |
+|---|---|
+| `pytest tests -q` | **58 passed** (one test removed with F5) |
+| `ruff check vap tests bench scripts` | All checks passed |
+| Wheel build | 19.4 KB, code only |
+| In-domain accuracy | **96.01%** (unchanged) |
+| Out-of-domain accuracy | 95.24% (unchanged) |
+
+The cleanup changed no measured behaviour: the removed code was unreachable and the
+packaging fix only removed files that could not be used.

@@ -15,8 +15,3 @@ def test_candidates_case_insensitive():
 def test_unknown_returns_empty():
     idx = CandidateIndex({"con": 10})
     assert idx.candidates("zzz") == []
-
-
-def test_best_returns_highest_count():
-    idx = CandidateIndex({"con": 10, "còn": 99})
-    assert idx.best("con") == "còn"

@@ -7,6 +7,5 @@ DST="$(dirname "$0")/../vap/data"
 mkdir -p "$DST"
 git -C "$SRC" show HEAD:datasets/news1gram      > "$DST/uni.tsv"
 git -C "$SRC" show HEAD:datasets/news2grams     > "$DST/bi.tsv"
-git -C "$SRC" show HEAD:datasets/AccentInfo.txt > "$DST/accent_groups.txt"
 cp "$SRC/datasets/test.txt"                      "$DST/in_domain.txt"
-wc -l "$DST"/*.tsv "$DST"/accent_groups.txt
+wc -l "$DST"/*.tsv "$DST"/in_domain.txt

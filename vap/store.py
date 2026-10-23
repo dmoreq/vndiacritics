@@ -1,8 +1,8 @@
 """Compact on-disk bigram table.
 
-A Python dict of 4.6M bigrams costs roughly 500 MB RAM and 1.6 s to load. The same
-data in a marisa-trie costs 19 MB and loads in about 0 ms (both measured). The model
-is identical; only the container differs.
+Measured on the shipped corpus (5,553,699 bigrams): a Python dict costs about 660 MB
+resident and 1.6 s to load. The same data in a marisa-trie costs 22 MB and loads in
+about 0.3 s. The model is identical; only the container differs.
 
 `size` and `total` are persisted in a sibling `.meta` file because summing 4.6M
 values from a trie is slow, and stuffing sentinel keys into the trie collides with

@@ -17,6 +17,15 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["vap"]
+# The corpus is recovered by scripts/recover_data.sh, not shipped: uni.tsv plus the
+# bigram trie are ~25 MB and the raw bigram table is 80 MB. Hatchling already drops
+# *.tsv/*.trie, but it keeps *.json, so bi.meta.json and the clean-corpus typo list
+# would ship without the data they describe. Exclude the data trees explicitly and let
+# Model.load() raise an instruction instead.
+exclude = [
+  "vap/data/**",
+  "vap/data-clean/**",
+]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -24,5 +33,6 @@ addopts = "-q"
 
 [tool.ruff]
 line-length = 100
-# The two analysis scripts predate the package and are kept for reproducibility.
-exclude = ["bench/accuracy_vs_order.py", "bench/measure_ngram.py"]
+# Archived analysis scripts are historical: they hardcode absolute paths and reach into
+# private Restorer members. See bench/archive/README.md.
+exclude = ["bench/archive"]

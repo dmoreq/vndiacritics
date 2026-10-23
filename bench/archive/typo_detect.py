@@ -24,7 +24,7 @@ import sys
 import unicodedata
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(ROOT))
 
 DEFAULT_DICT = ROOT / ".tmp/dicts/Viet74K.txt"
