@@ -160,3 +160,4 @@ def test_threshold_zero_disables_the_skip():
     )
     r.restore("toi toi")
     assert CountingBi.calls > 0
+

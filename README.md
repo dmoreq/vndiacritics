@@ -78,6 +78,12 @@ unigram prior's position, and stripping punctuation before lookup.
 .venv/bin/python bench/register_accuracy.py
 ```
 
+## Before you use this
+
+Read **[docs/USAGE.md](docs/USAGE.md)** — it documents accuracy per text type
+(news 98.5%, contracts 95.1%, **conversational 89.9%**) and three confirmed bugs that
+matter in practice, including a numeric token corrupting its neighbouring words.
+
 ## Limitations
 
 - Punctuation is split with a regex tuned to these corpora; exotic separators may pass through.
