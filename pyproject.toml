@@ -1,6 +1,6 @@
 [project]
 name = "vndiacritics"
-version = "0.2.0"
+version = "0.2.1"
 description = "Vietnamese diacritic restoration"
 requires-python = ">=3.11"
 dependencies = ["marisa-trie>=1.2"]

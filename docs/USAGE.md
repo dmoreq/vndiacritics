@@ -158,7 +158,7 @@ echo "toi o ha noi" | vndiacritics --data vndiacritics/data-v2b --case correct
 -> Tôi ở Hà Nội
 ```
 
-Độ chính xác case-sensitive: **90.22%** toàn tập (news 93.88%, hội thoại 90.44%, hợp đồng
+Độ chính xác case-sensitive: **90.38%** toàn tập (news 93.88%, hội thoại 91.18%, hợp đồng
 85.00%). Yếu điểm: từ đầu câu mà dạng thường áp đảo trong corpus ("Bên" trong hợp đồng) có
 thể bị bỏ thường; tên riêng không có thống kê sẽ được giữ nguyên case của input.
 

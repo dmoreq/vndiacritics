@@ -1,6 +1,6 @@
 # Case correction (`case="correct"`): statistical truecaser
 
-**Date**: 2026-10-25
+**Date**: 2026-10-25 (updated for the v0.2.1 lite profile)
 **Base**: commit `ff3310a`
 **Eval**: `bench/cased_eval.py` on `bench/data/cased_eval_v0.txt` (CC0, 40
 sentences, 603 tokens, 4 registers)
@@ -47,13 +47,17 @@ Final per-register (FOLD=64, v2b):
 |---|---:|---:|---:|
 | news | **93.88%** | 78.91% | +14.97 |
 | official | 91.88% | 82.50% | +9.38 |
-| conversational | 90.44% | 79.41% | +11.03 |
+| conversational | **91.18%** | 79.41% | +11.76 |
 | contracts | 85.00% | 72.50% | +12.50 |
-| **overall** | **90.22%** | 78.28% | **+11.94** |
+| **overall** | **90.38%** | 78.28% | **+12.10** |
 
-Gate: >= 85% case-sensitive token accuracy — **PASS** (90.22%).
+Gate: >= 85% case-sensitive token accuracy — **PASS** (90.38%).
 
-## 3. Remaining error modes (~69/603 tokens)
+(v0.2.1 numbers: the lite profile prunes singleton cased-bigrams from
+case_bi.tsv, which removed subtitle noise — conversational 90.44% -> 91.18%
+and overall 90.22% -> 90.38%.)
+
+## 3. Remaining error modes (~69/603 tokens; v0.2.1 lite: ~68/603)
 
 - Sentence-initial title words whose lowercase usage dominates the mixture
   ("Bên" in contracts: mid-sentence "bên" far outweighs initial "Bên") —

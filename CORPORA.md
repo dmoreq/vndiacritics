@@ -3,7 +3,11 @@
 The v1 corpus is fetched at setup from an unlicensed upstream repo (see
 `scripts/recover_data.sh`). Corpus v2b EXTENDS v1 (v1 stays a mixture
 component and the default) with register-balanced sources that carry
-explicit licenses. No source is committed or redistributed:
+explicit licenses. The default build profile is **lite**
+(`--min-count bi.tsv=2 case_bi.tsv=2`): singleton bigrams and singleton
+cased-bigrams are pruned after merging — trie 240MB -> 43MB with no
+measured accuracy cost on any gold corpus; `scripts/fetch_corpus_v2.sh
+--profile full` keeps every row. No source is committed or redistributed:
 everything is downloaded by `scripts/fetch_corpus_v2.sh` into `.tmp/` and
 rebuilt into tables at setup. Update this file whenever a pinned URL or hash
 changes.

@@ -40,12 +40,12 @@ Apple M3, Python 3.13, single process, no GPU.
 |---|---:|---:|---:|
 | in-domain news (589 sentences), default corpus | 8995 | **96.05%** | ~1,850 |
 | out-of-domain, all registers (55 sentences), default corpus | 883 | **95.58%** | ~2,450 |
-| in-domain with corpus v2b (register-balanced) | 8995 | 95.11% | ~1,180 |
-| out-of-domain with corpus v2b | 883 | **96.38%** | ~1,590 |
-| cased eval, `case="correct"` (needs v2b) | 603 | **90.22%** | — |
+| in-domain with corpus v2b (register-balanced, lite) | 8995 | 94.96% | ~1,050 |
+| out-of-domain with corpus v2b (lite) | 883 | **96.38%** | ~1,670 |
+| cased eval, `case="correct"` (needs v2b lite) | 603 | **90.38%** | — |
 
 The number-context bug (a numeric token corrupting its neighbours) is fixed as of
-2026-10-25; the accuracy column reflects the fix. Corpus v2b trades 0.94 in-domain
+2026-10-25; the accuracy column reflects the fix. Corpus v2b trades 1.09 in-domain
 points for +2.7 conversational and +0.5 news — see
 [docs/reports/2026-10-25-corpus-v2.md](docs/reports/2026-10-25-corpus-v2.md).
 
@@ -62,11 +62,12 @@ Per register (out-of-domain):
 | contracts | 205 | 95.12% | **96.10%** |
 | conversational | 188 | 89.89% | **92.55%** |
 
-| Resource | v1 (default) | v2b (optional) |
+| Resource | v1 (default) | v2b lite (optional) |
 |---|---|---|
-| Load time | 0.29 s | 8.2 s |
-| Bigram table on disk | 22 MB (marisa-trie) | 240 MB |
-| Resident memory | 113 MB | ~1 GB |
+| Load time | 0.29 s | 7.4 s (candidate-index build dominates; case tables lazy) |
+| First `case="correct"` call | n/a | +8.7 s, one-time |
+| Bigram table on disk | 22 MB (marisa-trie) | 43 MB (singletons pruned) |
+| Resident memory | 113 MB | ~1.1 GB (default) / ~2.1 GB (after case-correct) |
 | Runtime dependencies | `marisa-trie` only | `marisa-trie` only |
 
 Accuracy is register-dependent by about 9 points, which is larger than the gap between
@@ -129,10 +130,13 @@ matter in practice, including a numeric token corrupting its neighbouring words.
 
 ## Roadmap
 
-- ~~Case correction~~ — shipped 2026-10-25 as `case="correct"` (90.22% case-sensitive
+- ~~Case correction~~ — shipped 2026-10-25 as `case="correct"` (90.38% case-sensitive
   on the cased eval; needs corpus v2b). See
   [docs/reports/2026-10-25-case-correction.md](docs/reports/2026-10-25-case-correction.md).
 - Conversational register: largely closed by corpus v2b (89.89% → 92.55%).
+- Persist the candidate index at corpus-build time: index construction is now
+  the load bottleneck (6.8s of the 7.4s on v2b lite); a marisa-backed index
+  would cut the default load to well under 2 s.
 
 ## Data & license
 
