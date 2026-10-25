@@ -20,3 +20,4 @@ vndiacritics/data-clean/*.meta.json
 # scripts/make_clean_corpus.py after fetch_dicts.sh + bench/build_typo_list.py.
 vndiacritics/data-clean/typos.json
 .zcode/
+bench/baseline_results_*.json
