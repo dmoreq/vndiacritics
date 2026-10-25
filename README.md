@@ -6,8 +6,8 @@ Restores Vietnamese diacritics on text written without them, in pure Python, on 
 from vap import Model
 
 m = Model.load()
-m.restore("toi yeu viet nam")          # 'tôi yêu việt nam'
-m.restore("Hop dong so 02/HD/2025")    # 'Hợp đồng số 02/HD/2025'
+m.restore("toi yeu viet nam")  # 'tôi yêu việt nam'
+m.restore("Hop dong so 02/HD/2025")  # 'Hợp đồng số 02/HD/2025'
 ```
 
 The corpus is **not shipped in the wheel** (it is rebuilt from git history). Install the
@@ -35,10 +35,15 @@ Apple M3, Python 3.13, single process, no GPU.
 Throughput was measured on a machine under load, so treat the median as indicative and the
 speedup as the reliable figure: 1,841 → 2,195 sent/s (**1.19x**) from the rare-pair skip,
 measured A/B within one process. Accuracy is stable at 96.01% across every run.
-| out-of-domain, news register | 206 | **98.54%** | |
-| out-of-domain, official documents | 178 | **95.51%** | |
-| out-of-domain, contracts | 205 | **95.12%** | |
-| out-of-domain, conversational | 188 | **89.89%** | |
+
+Per register (out-of-domain):
+
+| Register | Tokens | Accuracy |
+|---|---:|---:|
+| news | 206 | **98.54%** |
+| official documents | 178 | **95.51%** |
+| contracts | 205 | **95.12%** |
+| conversational | 188 | **89.89%** |
 
 | Resource | Value |
 |---|---|
@@ -78,7 +83,7 @@ unigram prior's position, and stripping punctuation before lookup.
 
 ```bash
 ./scripts/recover_data.sh
-.venv/bin/pytest -q                 # 43 tests
+.venv/bin/pytest -q                 # 58 tests
 .venv/bin/python bench/benchmark.py # writes bench/results.json
 .venv/bin/python bench/register_accuracy.py
 ```
