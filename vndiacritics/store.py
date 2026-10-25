@@ -35,7 +35,9 @@ class BigramStore:
         meta = {"size": len(counts), "total": sum(counts.values())}
         trie = marisa_trie.BytesTrie((k, str(v).encode("ascii")) for k, v in counts.items())
         trie.save(str(path))
-        cls._meta_path(path).write_text(json.dumps(meta), encoding="utf-8")
+        # Trailing newline: pre-commit's end-of-file-fixer runs on the tracked
+        # sidecar, so a rebuild must produce hook-clean bytes.
+        cls._meta_path(path).write_text(json.dumps(meta) + "\n", encoding="utf-8")
 
     @classmethod
     def load(cls, path: Path) -> BigramStore:
