@@ -59,3 +59,32 @@ def test_restore_rejects_unknown_mode(cased_corpus_dir):
     m = Model.load(cased_corpus_dir)
     with pytest.raises(ValueError, match="preserve"):
         m.restore("toi", case="auto")
+
+
+def test_truecaser_is_lazy_and_cached():
+    """case="preserve" never builds the case tables; "correct" builds once."""
+    from vndiacritics.index import CandidateIndex
+    from vndiacritics.restore import Restorer
+    from vndiacritics.truecase import CaseStats, Truecaser
+
+    uni = {"tôi": 100000, "ở": 90000, "hà": 100, "nội": 50000, "và": 2000000}
+    bi = {"tôi ở": 50000, "ở hà": 900, "hà nội": 8000}
+    builds = []
+
+    def factory() -> Truecaser:
+        builds.append(1)
+        s = CaseStats()
+        s.lower.update({"tôi": 100000, "ở": 90000, "hà": 100, "nội": 50000})
+        s.cap.update({"tôi": 800, "ở": 50, "hà": 900, "nội": 100})
+        s.initial.update({"tôi": 60000})
+        s.bigrams.update({"Hà Nội": 8000})
+        return Truecaser(s)
+
+    r = Restorer(uni, CandidateIndex(uni), bi, bigram_conf_k=0, truecaser_factory=factory)
+    assert builds == []
+    assert r.restore("toi o ha noi") == "tôi ở hà nội"
+    assert builds == []
+    assert r.restore("toi o ha noi", case="correct") == "Tôi ở Hà Nội"
+    assert builds == [1]
+    r.restore("toi o ha noi", case="correct")
+    assert builds == [1]  # cached: no second build

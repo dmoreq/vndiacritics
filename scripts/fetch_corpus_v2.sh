@@ -6,13 +6,26 @@
 #   - OPUS OpenSubtitles v2024 en-vi (Vietnamese side), ODC-BY (conversational)
 #   - th1nhng0/vietnamese-legal-documents, CC BY 4.0 (official/legal, cased)
 #
-# Everything lands in .tmp/corpus_v2/. Final tables land wherever --outdir of
-# the merge step points (default: vndiacritics/data-v2/, gitignored).
+# Everything lands in .tmp/corpus_v2/. Final tables land in
+# vndiacritics/data-v2b/ (gitignored). Default profile "lite" discards
+# singleton bigrams and singleton cased-bigrams after merging (trie 240MB ->
+# 43MB, no measured accuracy cost on any gold corpus); --profile full keeps
+# every row.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 WORK="$ROOT/.tmp/corpus_v2"
 mkdir -p "$WORK"
+
+PROFILE="lite"
+OUT=""
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --profile) PROFILE="$2"; shift 2 ;;
+    *) OUT="$1"; shift ;;
+  esac
+done
+OUT="${OUT:-$ROOT/vndiacritics/data-v2b}"
 
 WIKI_URL="https://dumps.wikimedia.org/viwiki/20261001/viwiki-20261001-pages-articles-multistream.xml.bz2"
 WIKI_FILE="$WORK/viwiki-20261001-pages-articles-multistream.xml.bz2"
@@ -71,14 +84,17 @@ if [ ! -f "$OUT/names_persons.txt" ]; then
 fi
 
 echo "== merging (v1 news corpus is the fourth source: it carries the news-register mass) =="
-"$PY" "$ROOT/scripts/merge_corpus.py" \
-  --inputs "$ROOT/vndiacritics/data" "$WORK/build-wiki" "$WORK/build-subtitles" "$WORK/build-legal" \
-  --outdir "$OUT"
+MERGE_ARGS=(--inputs "$ROOT/vndiacritics/data" "$WORK/build-wiki" "$WORK/build-subtitles" "$WORK/build-legal" --outdir "$OUT")
+if [ "$PROFILE" = "lite" ]; then
+  MERGE_ARGS+=(--min-count bi.tsv=2 --min-count case_bi.tsv=2)
+fi
+"$PY" "$ROOT/scripts/merge_corpus.py" "${MERGE_ARGS[@]}"
 # K re-measured on this corpus (docs/reports/2026-10-25-corpus-v2.md); the
 # auto-scaled default is calibrated for v1's corpus mass.
-cat > "$OUT/model.json" <<'JSON'
+cat > "$OUT/model.json" <<JSON
 {
   "bigram_conf_k": 1000,
+  "profile": "$PROFILE",
   "note": "Measured with bench/ab_confidence.py on this mixture (2026-10-25): K=1000 maximizes both golds. Re-run the sweep after any mixture change."
 }
 JSON

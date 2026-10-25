@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import math
 import re
+from collections.abc import Callable
 from typing import Protocol
 
 from vndiacritics.index import CandidateIndex
@@ -44,7 +45,7 @@ class Restorer:
         max_candidates: int | None = 8,
         bigram_skip_below: int | None = None,
         bigram_conf_k: int | None = None,
-        truecaser: Truecaser | None = None,
+        truecaser_factory: Callable[[], Truecaser] | None = None,
     ) -> None:
         self._uni = unigram
         self._idx = index
@@ -103,8 +104,12 @@ class Restorer:
         self._conf_k = bigram_conf_k
         self._uni_denom = self._t1 + self._v1
         # Optional statistical truecaser (corpus v2). None keeps the default
-        # case="preserve" contract; case="correct" without one raises.
-        self._truecaser = truecaser
+        # case="preserve" contract; case="correct" without one raises. The
+        # factory runs on the FIRST case="correct" call and the result is
+        # cached: building the case tables costs seconds and gigabytes, and
+        # default-mode users never pay it.
+        self._truecaser_factory = truecaser_factory
+        self._truecaser: Truecaser | None = None
 
     @staticmethod
     def _split_punct(token: str) -> tuple[str, str, str]:
@@ -164,12 +169,7 @@ class Restorer:
         else:
             chosen = self._viterbi(cols)
         if case == "correct":
-            if self._truecaser is None:
-                raise ValueError(
-                    "case='correct' requires case statistics; this corpus has none "
-                    "(build corpus v2 with scripts/fetch_corpus_v2.sh)"
-                )
-            decided = self._truecaser.correct([m.group() for m in matches], chosen)
+            decided = self._resolve_truecaser().correct([m.group() for m in matches], chosen)
         else:
             decided = [None] * len(chosen)
         out: list[str] = []
@@ -183,6 +183,17 @@ class Restorer:
             end = m.end()
         out.append(text[end:])
         return "".join(out)
+
+    def _resolve_truecaser(self) -> Truecaser:
+        """Return the truecaser, building it on first use; raise without stats."""
+        if self._truecaser is None:
+            if self._truecaser_factory is None:
+                raise ValueError(
+                    "case='correct' requires case statistics; this corpus has none "
+                    "(build corpus v2 with scripts/fetch_corpus_v2.sh)"
+                )
+            self._truecaser = self._truecaser_factory()
+        return self._truecaser
 
     def _transition_score(self, n1: int, n2: int, kp_uni: float) -> float:
         """Score one (prev, cur) pair from bigram evidence. Load-bearing arithmetic.

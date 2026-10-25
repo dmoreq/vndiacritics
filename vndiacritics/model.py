@@ -43,13 +43,19 @@ class Model:
         model_json = d / "model.json"
         if model_json.exists():
             conf_k = int(json.loads(model_json.read_text(encoding="utf-8"))["bigram_conf_k"])
-        # Case statistics are optional: present in corpus v2 (case.tsv), absent in
-        # the 2017 corpus. case="correct" raises a helpful error without them.
-        truecaser = None
+        # Case statistics are optional: present in corpus v2 (case.tsv), absent
+        # in the 2017 corpus. Built lazily on the first case="correct" call —
+        # loading them costs seconds and gigabytes, and default-mode users
+        # never pay it. case="correct" raises a helpful error without them.
+        truecaser_factory = None
         if (d / "case.tsv").exists():
-            truecaser = Truecaser(load_case_tables(d))
+            truecaser_factory = lambda: Truecaser(load_case_tables(d))
         restorer = Restorer(
-            unigram, CandidateIndex(unigram), store, bigram_conf_k=conf_k, truecaser=truecaser
+            unigram,
+            CandidateIndex(unigram),
+            store,
+            bigram_conf_k=conf_k,
+            truecaser_factory=truecaser_factory,
         )
         return cls(restorer)
 

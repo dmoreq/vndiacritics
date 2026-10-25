@@ -3,7 +3,9 @@
 Inputs are directories produced by scripts/build_corpus.py. All five tables
 are summed element-wise and re-sorted; the result is deterministic because
 addition is commutative and keys are sorted. Mixing weights are controlled
-upstream by extract-time sampling, not here.
+upstream by extract-time sampling, not here. --min-count prunes low-frequency
+rows after summing (the lite profile discards singleton bigrams and singleton
+cased-bigrams: ~74% of bi rows, no measured accuracy cost on any gold).
 """
 
 from __future__ import annotations
@@ -43,15 +45,31 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--inputs", nargs="+", type=Path, required=True)
     ap.add_argument("--outdir", type=Path, required=True)
+    ap.add_argument(
+        "--min-count",
+        action="append",
+        default=[],
+        metavar="TABLE=MIN",
+        help="drop merged rows of TABLE whose count is below MIN "
+        "(e.g. --min-count bi.tsv=2 discards singleton bigrams)",
+    )
     args = ap.parse_args(argv)
+
+    limits: dict[str, int] = {}
+    for spec in args.min_count:
+        name, _, raw = spec.partition("=")
+        limits[name] = int(raw)
 
     args.outdir.mkdir(parents=True, exist_ok=True)
     for name, columns in TABLES.items():
         paths = [d / name for d in args.inputs]
         merged = _sum_table([p for p in paths if p.exists()], columns)
+        min_count = limits.get(name)
         with open(args.outdir / name, "w", encoding="utf-8") as fh:
             fh.writelines(
-                key + "\t" + "\t".join(str(v) for v in merged[key]) + "\n" for key in sorted(merged)
+                key + "\t" + "\t".join(str(v) for v in merged[key]) + "\n"
+                for key in sorted(merged)
+                if min_count is None or merged[key][-1] >= min_count
             )
         print(f"{name}: {len(merged)} keys")
     return 0
