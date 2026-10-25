@@ -57,7 +57,7 @@ Gate: >= 85% case-sensitive token accuracy — **PASS** (90.22%).
 
 - Sentence-initial title words whose lowercase usage dominates the mixture
   ("Bên" in contracts: mid-sentence "bên" far outweighs initial "Bên") —
-  residual of the ratio rule; contracts register is the weakest (85.62%).
+  residual of the ratio rule; contracts register is the weakest (85.00%).
 - Mid-name particles without attested pairs ("Văn" when "Nguyễn Văn" was not
   counted in case_bi at that position).
 - Diacritic-task leakage, not case errors: "Báo Thanh Nien" -> "niên" (gold

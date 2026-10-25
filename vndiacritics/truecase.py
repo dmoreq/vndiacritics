@@ -27,7 +27,8 @@ Decision per token, given its lowercase form and the stats:
   CONTINUATION_WEIGHT * pair_count. This is what turns "hà nội" into
   "Hà Nội" even when "nội" is usually lowercase.
 - No stats for the type (OOV): leave the token as the restorer produced it
-  (positional copy). Unknown words must not gain or lose case.
+  (positional copy). Unknown words must not gain or lose case, with one
+  exception: a bare ASCII letter is uppercased (contract labels "Bên A").
 
 Input tokens that are already ALL-CAPS and attested stay ALL-CAPS; ALL-CAPS
 input for an unattested-uppercase type (shouting) is decided by the stats

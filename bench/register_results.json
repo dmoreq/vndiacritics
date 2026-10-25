@@ -1,8 +1,8 @@
 {
   "contracts / business": {
     "sentences": 15,
-    "accuracy": 0.9561,
-    "correct": 196,
+    "accuracy": 0.961,
+    "correct": 197,
     "total": 205
   },
   "official documents / c\u00f4ng v\u0103n": {
@@ -13,8 +13,8 @@
   },
   "everyday / conversational": {
     "sentences": 15,
-    "accuracy": 0.9202,
-    "correct": 173,
+    "accuracy": 0.9255,
+    "correct": 174,
     "total": 188
   },
   "news / long-form": {
@@ -25,8 +25,8 @@
   },
   "_overall": {
     "sentences": 55,
-    "accuracy": 0.9562,
-    "correct": 743,
+    "accuracy": 0.9588,
+    "correct": 745,
     "total": 777,
     "skipped": 0
   }

@@ -36,7 +36,7 @@ thoại là **8.65 điểm** — lớn hơn mọi khác biệt khác trong tool.
 tin tức và Wikipedia, nên thiếu từ đệm khẩu ngữ (`nha`, `nhe`, `a`, `ha`).
 
 Cập nhật 2026-10-25: corpus tùy chọn **v2b** giảm chênh lệch này xuống 6.5 điểm (hội thoại
-92.02%) — chạy `--data vndiacritics/data-v2b`. Xem
+92.55%) — chạy `--data vndiacritics/data-v2b`. Xem
 [reports/2026-10-25-corpus-v2.md](reports/2026-10-25-corpus-v2.md).
 
 Nếu bạn xử lý chat, comment, tin nhắn: **phải đọc lại kết quả**.

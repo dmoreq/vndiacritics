@@ -40,13 +40,13 @@ Apple M3, Python 3.13, single process, no GPU.
 |---|---:|---:|---:|
 | in-domain news (589 sentences), default corpus | 8995 | **96.05%** | ~1,850 |
 | out-of-domain, all registers (55 sentences), default corpus | 883 | **95.58%** | ~2,450 |
-| in-domain with corpus v2b (register-balanced) | 8995 | 95.08% | ~1,140 |
-| out-of-domain with corpus v2b | 883 | **96.15%** | ~1,130 |
+| in-domain with corpus v2b (register-balanced) | 8995 | 95.11% | ~1,180 |
+| out-of-domain with corpus v2b | 883 | **96.38%** | ~1,590 |
 | cased eval, `case="correct"` (needs v2b) | 603 | **90.22%** | — |
 
 The number-context bug (a numeric token corrupting its neighbours) is fixed as of
-2026-10-25; the accuracy column reflects the fix. Corpus v2b trades 1 in-domain
-point for +2.1 conversational and +0.5 news — see
+2026-10-25; the accuracy column reflects the fix. Corpus v2b trades 0.94 in-domain
+points for +2.7 conversational and +0.5 news — see
 [docs/reports/2026-10-25-corpus-v2.md](docs/reports/2026-10-25-corpus-v2.md).
 
 Throughput was measured on a machine under load, so treat the median as indicative and the
@@ -59,8 +59,8 @@ Per register (out-of-domain):
 |---|---:|---:|---:|
 | news | 206 | **98.54%** | 99.03% |
 | official documents | 178 | 95.51% | 95.51% |
-| contracts | 205 | 95.12% | 95.61% |
-| conversational | 188 | 89.89% | **92.02%** |
+| contracts | 205 | 95.12% | **96.10%** |
+| conversational | 188 | 89.89% | **92.55%** |
 
 | Resource | v1 (default) | v2b (optional) |
 |---|---|---|

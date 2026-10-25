@@ -79,7 +79,7 @@ echo "== merging (v1 news corpus is the fourth source: it carries the news-regis
 cat > "$OUT/model.json" <<'JSON'
 {
   "bigram_conf_k": 1000,
-  "note": "Measured with bench/ab_confidence.py; re-run the sweep after any mixture change."
+  "note": "Measured with bench/ab_confidence.py on this mixture (2026-10-25): K=1000 maximizes both golds. Re-run the sweep after any mixture change."
 }
 JSON
 echo "corpus v2 ready"
