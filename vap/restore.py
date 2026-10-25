@@ -137,40 +137,53 @@ class Restorer:
         out.append(text[end:])
         return "".join(out)
 
+    def _best_transition(
+        self,
+        prev_col: list[str],
+        prev_score: list[float],
+        cur: str,
+        add_prior: bool,
+    ) -> tuple[float, int]:
+        """Score `cur` against every predecessor; return (best score, argmax index).
+
+        Extracted from `_viterbi` only to bound cognitive complexity. The scoring
+        arithmetic (skip rule, UNK fallback, prior on the second column) is the
+        load-bearing logic documented in the module docstring -- keep it identical.
+        """
+        uni_get = self._uni.get
+        bi_get = self._bi.get
+        skip_below = self._bigram_skip_below
+        best = _MIN
+        arg = 0
+        cur_ok = skip_below <= 0 or uni_get(cur, 0) >= skip_below
+        for k, prev in enumerate(prev_col):
+            n1 = uni_get(prev, 0)
+            if cur_ok and n1 >= skip_below:
+                n2 = bi_get(prev + " " + cur, 0)
+            else:
+                n2 = 0
+            if n1 > 0 and n2 > 0:
+                s = prev_score[k] + math.log((n2 + 1) / (n1 + 1))
+            else:
+                s = prev_score[k] + self._unk
+            if add_prior:
+                s += math.log((n1 + 1) / (self._t1 + self._v1))
+            if s > best:
+                best = s
+                arg = k
+        return best, arg
+
     def _viterbi(self, cols: list[list[str]]) -> list[str]:
         score = [[_MIN] * len(c) for c in cols]
         back = [[0] * len(c) for c in cols]
         for j in range(len(cols[0])):
             score[0][j] = 0.0
         for i in range(1, len(cols)):
-            prev_col = cols[i - 1]
-            prev_score = score[i - 1]
             add_prior = i == 1
-            uni_get = self._uni.get
-            bi_get = self._bi.get
-            unk = self._unk
-            skip_below = self._bigram_skip_below
             for j, cur in enumerate(cols[i]):
-                best = _MIN
-                arg = 0
-                cur_ok = skip_below <= 0 or uni_get(cur, 0) >= skip_below
-                for k, prev in enumerate(prev_col):
-                    n1 = uni_get(prev, 0)
-                    if cur_ok and n1 >= skip_below:
-                        n2 = bi_get(prev + " " + cur, 0)
-                    else:
-                        n2 = 0
-                    if n1 > 0 and n2 > 0:
-                        s = prev_score[k] + math.log((n2 + 1) / (n1 + 1))
-                    else:
-                        s = prev_score[k] + unk
-                    if add_prior:
-                        s += math.log((n1 + 1) / (self._t1 + self._v1))
-                    if s > best:
-                        best = s
-                        arg = k
-                score[i][j] = best
-                back[i][j] = arg
+                score[i][j], back[i][j] = self._best_transition(
+                    cols[i - 1], score[i - 1], cur, add_prior
+                )
         idx = max(range(len(cols[-1])), key=lambda j: score[-1][j])
         out: list[str] = [""] * len(cols)
         out[-1] = cols[-1][idx]
