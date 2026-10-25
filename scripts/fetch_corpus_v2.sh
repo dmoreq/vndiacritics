@@ -68,7 +68,6 @@ for SRC in wiki subtitles legal; do
 done
 
 echo "== gazetteers (truecaser reinforcement) =="
-OUT="${1:-$ROOT/vndiacritics/data-v2}"
 mkdir -p "$WORK/gazetteer"
 NAMEDB_URL="https://raw.githubusercontent.com/duyet/vietnamese-namedb/master"
 for F in boy.txt girl.txt; do

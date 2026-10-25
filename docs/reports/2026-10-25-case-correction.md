@@ -57,7 +57,7 @@ Gate: >= 85% case-sensitive token accuracy — **PASS** (90.38%).
 case_bi.tsv, which removed subtitle noise — conversational 90.44% -> 91.18%
 and overall 90.22% -> 90.38%.)
 
-## 3. Remaining error modes (~69/603 tokens; v0.2.1 lite: ~68/603)
+## 3. Remaining error modes (~58/603 tokens)
 
 - Sentence-initial title words whose lowercase usage dominates the mixture
   ("Bên" in contracts: mid-sentence "bên" far outweighs initial "Bên") —
