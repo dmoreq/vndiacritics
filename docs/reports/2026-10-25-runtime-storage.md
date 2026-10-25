@@ -41,8 +41,12 @@ TSV compressed instead:
 
 | Data dir | Before | After | Delta |
 |---|---:|---:|---:|
-| `vndiacritics/data/` (v1) | 102 MB (`bi.tsv` 77) | **57 MB** (`bi.tsv.gz` 33) | −45 MB |
-| `vndiacritics/data-v2b/` | 388 MB (`bi.tsv` 151) | **244 MB** (`bi.tsv.gz` 44) | −144 MB |
+| `vndiacritics/data/` (v1) | 101 MB (`bi.tsv` 77) | **57 MB** (`bi.tsv.gz` 33) | −44 MB |
+| `vndiacritics/data-v2b/` | 366 MB (`bi.tsv` 151) | **254 MB** (`bi.tsv.gz` 46) | −112 MB |
+
+(Decimal MB from byte counts; the v1 directory was measured both before and
+after conversion, the v2b Before is reconstructed from the current on-disk
+state with the uncompressed TSV swapped back in.)
 
 Mechanics:
 
