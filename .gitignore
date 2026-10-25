@@ -21,3 +21,5 @@ vndiacritics/data-clean/*.meta.json
 vndiacritics/data-clean/typos.json
 .zcode/
 bench/baseline_results_*.json
+vndiacritics/data-v2/
+bench/cased_eval_results.json
