@@ -22,6 +22,7 @@ import re
 from typing import Protocol
 
 from vndiacritics.index import CandidateIndex
+from vndiacritics.truecase import Truecaser
 
 _MIN = float("-inf")
 
@@ -43,6 +44,7 @@ class Restorer:
         max_candidates: int | None = 8,
         bigram_skip_below: int | None = None,
         bigram_conf_k: int | None = None,
+        truecaser: Truecaser | None = None,
     ) -> None:
         self._uni = unigram
         self._idx = index
@@ -100,6 +102,9 @@ class Restorer:
             bigram_conf_k = int(self._t1 * 1000 / 400_508_022)
         self._conf_k = bigram_conf_k
         self._uni_denom = self._t1 + self._v1
+        # Optional statistical truecaser (corpus v2). None keeps the default
+        # case="preserve" contract; case="correct" without one raises.
+        self._truecaser = truecaser
 
     @staticmethod
     def _split_punct(token: str) -> tuple[str, str, str]:
@@ -135,14 +140,21 @@ class Restorer:
             affixes.append((lead, trail))
         return cols, affixes
 
-    def restore(self, text: str) -> str:
+    def restore(self, text: str, case: str = "preserve") -> str:
         """Restore diacritics without disturbing the input's whitespace layout.
 
         Whitespace between tokens is copied verbatim from the source rather than
         rejoined with single spaces, and case is reapplied per token. Doing it on the
         whole joined string previously shifted every character after the first extra
         space, which corrupted case in the rest of the sentence.
+
+        case="preserve" (default) keeps the input's letter case positionally --
+        the long-standing contract. case="correct" hands the chosen words to the
+        truecaser (vndiacritics/truecase.py), which decides case from corpus
+        statistics; requires a corpus directory with case.tsv (corpus v2).
         """
+        if case not in ("preserve", "correct"):
+            raise ValueError(f"case must be 'preserve' or 'correct', got {case!r}")
         if not text.strip():
             return text
         matches = list(re.finditer(r"\S+", text))
@@ -151,11 +163,23 @@ class Restorer:
             chosen = [max(cols[0], key=lambda w: self._uni.get(w, 0))]
         else:
             chosen = self._viterbi(cols)
+        if case == "correct":
+            if self._truecaser is None:
+                raise ValueError(
+                    "case='correct' requires case statistics; this corpus has none "
+                    "(build corpus v2 with scripts/fetch_corpus_v2.sh)"
+                )
+            decided = self._truecaser.correct([m.group() for m in matches], chosen)
+        else:
+            decided = [None] * len(chosen)
         out: list[str] = []
         end = 0
-        for m, word, (lead, trail) in zip(matches, chosen, affixes):
+        for m, word, dec, (lead, trail) in zip(matches, chosen, decided, affixes):
             out.append(text[end : m.start()])
-            out.append(self._reapply_case(m.group(), lead + word + trail))
+            if dec is None:
+                out.append(self._reapply_case(m.group(), lead + word + trail))
+            else:
+                out.append(lead + dec + trail)
             end = m.end()
         out.append(text[end:])
         return "".join(out)

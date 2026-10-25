@@ -1,7 +1,8 @@
 """Vietnamese diacritic restoration.
 
-Public surface: `Model` for restoration, the two stripping helpers for preparing input.
-Everything else is internal and may move between versions.
+Public surface: `Model` for restoration (with optional case correction), the two
+stripping helpers for preparing input. Everything else is internal and may move
+between versions.
 """
 
 from vndiacritics.model import Model

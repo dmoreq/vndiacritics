@@ -22,7 +22,11 @@ class Score:
         return self.correct / self.total if self.total else 0.0
 
 
-def score(gold: list[str], pred: list[str]) -> Score:
+def score(gold: list[str], pred: list[str], case_sensitive: bool = False) -> Score:
+    """Token-level accuracy. Case-insensitive by default (the diacritic task).
+
+    case_sensitive=True grades letter case too -- the truecaser's grader.
+    """
     correct = total = skipped = 0
     for g, p in zip(gold, pred):
         gw, pw = g.split(), p.split()
@@ -31,7 +35,7 @@ def score(gold: list[str], pred: list[str]) -> Score:
             continue
         for a, b in zip(gw, pw):
             total += 1
-            correct += a.lower() == b.lower()
+            correct += (a == b) if case_sensitive else (a.lower() == b.lower())
     skipped += abs(len(gold) - len(pred))
     return Score(correct=correct, total=total, skipped=skipped)
 

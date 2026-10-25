@@ -8,6 +8,7 @@ from vndiacritics.data import DATA_DIR, load_bigram, load_unigram
 from vndiacritics.index import CandidateIndex
 from vndiacritics.restore import Restorer
 from vndiacritics.store import BigramStore
+from vndiacritics.truecase import Truecaser, load_case_tables
 
 
 class Model:
@@ -34,8 +35,13 @@ class Model:
         if not trie_path.exists() or not meta_path.exists():
             BigramStore.build(load_bigram(d / "bi.tsv"), trie_path)
         store = BigramStore.load(trie_path)
-        restorer = Restorer(unigram, CandidateIndex(unigram), store)
+        # Case statistics are optional: present in corpus v2 (case.tsv), absent in
+        # the 2017 corpus. case="correct" raises a helpful error without them.
+        truecaser = None
+        if (d / "case.tsv").exists():
+            truecaser = Truecaser(load_case_tables(d))
+        restorer = Restorer(unigram, CandidateIndex(unigram), store, truecaser=truecaser)
         return cls(restorer)
 
-    def restore(self, text: str) -> str:
-        return self._restorer.restore(text)
+    def restore(self, text: str, case: str = "preserve") -> str:
+        return self._restorer.restore(text, case=case)
