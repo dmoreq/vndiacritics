@@ -31,6 +31,9 @@ exclude = [
 testpaths = ["tests"]
 addopts = "-q"
 
+[tool.bandit]
+exclude_dirs = ["tests", "bench", "bench/archive"]
+
 [tool.ruff]
 line-length = 100
 # Archived analysis scripts are historical: they hardcode absolute paths and reach into

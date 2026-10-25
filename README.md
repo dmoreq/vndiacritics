@@ -1,5 +1,10 @@
 # vndiacritics — Vietnamese diacritic restoration
 
+[![CI](https://github.com/dmoreq/vndiacritics/actions/workflows/ci.yml/badge.svg)](https://github.com/dmoreq/vndiacritics/actions/workflows/ci.yml)
+[![Python](https://img.shields.io/badge/python-3.11%20%7C%203.12%20%7C%203.13-blue)](https://pypi.org/project/vndiacritics/)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+
 Restores Vietnamese diacritics on text written without them, in pure Python, on CPU.
 
 ```python
@@ -83,8 +88,8 @@ unigram prior's position, and stripping punctuation before lookup.
 
 ```bash
 ./scripts/recover_data.sh
-.venv/bin/pytest -q                 # 58 tests
-.venv/bin/python bench/benchmark.py # writes bench/results.json
+.venv/bin/pytest -q                     # 58 tests
+.venv/bin/python bench/baseline.py      # accuracy + throughput, both corpora
 .venv/bin/python bench/register_accuracy.py
 ```
 
@@ -101,3 +106,19 @@ matter in practice, including a numeric token corrupting its neighbouring words.
   correct for names but wrong for loanwords that should carry diacritics.
 - Conversational text scores ~9 points below news text. Adding a conversational corpus would
   narrow that gap more than any model change.
+
+## Roadmap
+
+- Case correction: `Model.restore(text, case="correct")` alongside the default
+  `"preserve"` mode (`cong ty co phan` → `Công ty Cổ phần`). The corpus currently
+  carries no capitalization signal, so this needs a new corpus pass or a rule layer.
+
+## Data & license
+
+Code: MIT (see [LICENSE](LICENSE)). The diacritic-restoration corpus is **not**
+redistributed: it is extracted at setup time from
+[tienthanhdhcn/Vietnamese-Accent-Prediction](https://github.com/tienthanhdhcn/Vietnamese-Accent-Prediction)
+at a pinned commit and verified by SHA-256, because that repository carries no
+license. Do not commit anything under `vndiacritics/data/`. The out-of-domain
+evaluation set is CC0 ([nom-vn](https://github.com/nom-vn)). Development-only
+dictionaries fetched by `scripts/fetch_dicts.sh` carry their own licenses.
