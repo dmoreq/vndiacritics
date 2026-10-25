@@ -4,8 +4,8 @@ pytest.importorskip("marisa_trie")
 
 
 def test_from_directory(tmp_path):
-    from vap.model import Model
-    from vap.store import BigramStore
+    from vndiacritics.model import Model
+    from vndiacritics.store import BigramStore
 
     (tmp_path / "uni.tsv").write_text("con\t10\ncòn\t99\n", encoding="utf-8")
     (tmp_path / "bi.tsv").write_text("con là\t5\n", encoding="utf-8")
@@ -15,7 +15,7 @@ def test_from_directory(tmp_path):
 
 
 def test_missing_trie_is_rebuilt(tmp_path):
-    from vap.model import Model
+    from vndiacritics.model import Model
 
     (tmp_path / "uni.tsv").write_text("con\t10\n", encoding="utf-8")
     (tmp_path / "bi.tsv").write_text("con la\t5\n", encoding="utf-8")
@@ -26,8 +26,8 @@ def test_missing_trie_is_rebuilt(tmp_path):
 
 def test_uses_trie_not_dict(tmp_path):
     """Ensure the restorer sees one and two gram totals correctly via the store."""
-    from vap.model import Model
-    from vap.store import BigramStore
+    from vndiacritics.model import Model
+    from vndiacritics.store import BigramStore
 
     (tmp_path / "uni.tsv").write_text("công\t1000\nty\t500\ncon\t10\ncòn\t900\n", encoding="utf-8")
     (tmp_path / "bi.tsv").write_text("công ty\t8000\ncông con\t1\ncông còn\t1\n", encoding="utf-8")
@@ -37,8 +37,8 @@ def test_uses_trie_not_dict(tmp_path):
 
 
 def test_missing_metadata_rebuilds_trie_pair(tmp_path):
-    from vap.model import Model
-    from vap.store import BigramStore
+    from vndiacritics.model import Model
+    from vndiacritics.store import BigramStore
 
     (tmp_path / "uni.tsv").write_text("tôi\t500\ntoi\t1\n", encoding="utf-8")
     (tmp_path / "bi.tsv").write_text("tôi tôi\t3\n", encoding="utf-8")

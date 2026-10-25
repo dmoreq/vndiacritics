@@ -130,7 +130,7 @@ def main() -> int:
 
     words = list(args.verify)
     if args.corpus_typos:
-        from vap.model import Model
+        from vndiacritics.model import Model
 
         uni = Model.load()._restorer._uni
         by_shape: dict[str, list[tuple[str, int]]] = {}

@@ -23,6 +23,6 @@
     "**/*.yml"
   ],
   "path": [
-    "vap"
+    "vndiacritics"
   ]
 }

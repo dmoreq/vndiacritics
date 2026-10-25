@@ -1,4 +1,4 @@
-from vap.normalize import strip_accent
+from vndiacritics.normalize import strip_accent
 
 
 def test_strips_tone_marks():

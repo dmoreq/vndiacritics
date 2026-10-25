@@ -1,4 +1,4 @@
-from vap.cli import main
+from vndiacritics.cli import main
 
 
 def test_restore_from_stdin(monkeypatch, capsys, tmp_path):

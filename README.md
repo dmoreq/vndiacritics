@@ -1,9 +1,9 @@
-# vap — Vietnamese diacritic restoration
+# vndiacritics — Vietnamese diacritic restoration
 
 Restores Vietnamese diacritics on text written without them, in pure Python, on CPU.
 
 ```python
-from vap import Model
+from vndiacritics import Model
 
 m = Model.load()
 m.restore("toi yeu viet nam")  # 'tôi yêu việt nam'
@@ -18,9 +18,9 @@ naming that command.
 Command line:
 
 ```bash
-./scripts/recover_data.sh          # once: build vap/data/ from git history
-echo "toi yeu viet nam" | vap      # 'tôi yêu việt nam'
-vap --accuracy vap/data/in_domain.txt
+./scripts/recover_data.sh          # once: build vndiacritics/data/ from git history
+echo "toi yeu viet nam" | vndiacritics      # 'tôi yêu việt nam'
+vndiacritics --accuracy vndiacritics/data/in_domain.txt
 ```
 
 ## Measured
@@ -62,10 +62,10 @@ round-trips without being normalised.
 ## How it works
 
 1. **Candidate generation.** An accent-stripped syllable maps to every accented form seen in
-   the corpus (`vap/index.py`). Gold form is present 99.87% of the time, so this is the recall
+   the corpus (`vndiacritics/index.py`). Gold form is present 99.87% of the time, so this is the recall
    ceiling of the whole approach.
 2. **Bigram Viterbi.** Pick the highest-scoring path through the candidate lattice using
-   interpolated bigram counts with an UNK penalty (`vap/restore.py`).
+   interpolated bigram counts with an UNK penalty (`vndiacritics/restore.py`).
 3. **Beam width 8.** Candidates are pruned by unigram count before the DP. Measured: 0.30
    accuracy points for 2.4x throughput.
 4. **Rare-pair skip.** A pair where either word's unigram count is below `1e-4 * |V|` scores

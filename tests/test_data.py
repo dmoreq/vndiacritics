@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from vap.data import load_unigram, parse_count_table
+from vndiacritics.data import load_unigram, parse_count_table
 
 
 def test_parse_count_table(tmp_path):
@@ -31,7 +31,7 @@ def test_parse_count_table_handles_crlf(tmp_path):
 
 
 @pytest.mark.skipif(
-    not (Path(__file__).resolve().parents[1] / "vap" / "data" / "uni.tsv").exists(),
+    not (Path(__file__).resolve().parents[1] / "vndiacritics" / "data" / "uni.tsv").exists(),
     reason="corpus not recovered",
 )
 def test_load_unigram_real_corpus():

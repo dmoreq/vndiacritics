@@ -14,9 +14,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from vap.eval import split_sentences
-from vap.model import Model
-from vap.normalize import nfc, strip_accent_keep_case
+from vndiacritics.eval import split_sentences
+from vndiacritics.model import Model
+from vndiacritics.normalize import nfc, strip_accent_keep_case
 
 
 def has_diacritic(t: str) -> bool:
@@ -43,7 +43,7 @@ def family(gold_tok: str, got_tok: str, ctx: str) -> str:
 def main() -> int:
     model = Model.load()
     r = model._restorer
-    raw = (ROOT / "vap/data/in_domain.txt").read_text(encoding="utf-8")
+    raw = (ROOT / "vndiacritics/data/in_domain.txt").read_text(encoding="utf-8")
     gold = [nfc(s) for s in split_sentences(raw)]
     stripped = [strip_accent_keep_case(s) for s in gold]
     pred = [r.restore(s) for s in stripped]

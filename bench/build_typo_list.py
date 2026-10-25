@@ -94,13 +94,13 @@ def assert_protected(safe: list[dict]) -> None:
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--out", type=Path, default=ROOT / "vap/data-clean/typos.json")
+    ap.add_argument("--out", type=Path, default=ROOT / "vndiacritics/data-clean/typos.json")
     ap.add_argument("--min-twin-sources", type=int, default=2)
     ap.add_argument("--min-ratio", type=int, default=100)
     ap.add_argument("--max-rare-count", type=int, default=100)
     args = ap.parse_args()
 
-    from vap.data import load_unigram
+    from vndiacritics.data import load_unigram
 
     unigram = load_unigram()
     lists = {

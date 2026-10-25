@@ -13,35 +13,35 @@ from pathlib import Path
 import pytest
 
 # Anchor to the repo root so the gates run no matter where pytest is invoked from.
-CORPUS = Path(__file__).resolve().parents[1] / "vap" / "data" / "uni.tsv"
+CORPUS = Path(__file__).resolve().parents[1] / "vndiacritics" / "data" / "uni.tsv"
 
-# CI sets VAP_REQUIRE_CORPUS=1 so a missing corpus fails the run instead of
+# CI sets VNDIACRITICS_REQUIRE_CORPUS=1 so a missing corpus fails the run instead of
 # silently skipping the most valuable tests. Locally, absence just skips.
-if os.environ.get("VAP_REQUIRE_CORPUS") == "1" and not CORPUS.exists():
+if os.environ.get("VNDIACRITICS_REQUIRE_CORPUS") == "1" and not CORPUS.exists():
 
     def test_corpus_recovered() -> None:
         pytest.fail(
-            f"VAP_REQUIRE_CORPUS=1 but corpus is missing at {CORPUS}; run ./scripts/recover_data.sh"
+            f"VNDIACRITICS_REQUIRE_CORPUS=1 but corpus is missing at {CORPUS}; run ./scripts/recover_data.sh"
         )
 
 else:
     pytestmark = pytest.mark.skipif(not CORPUS.exists(), reason="corpus not recovered")
 
 ROOT = Path(__file__).resolve().parents[1]
-IN_DOMAIN = ROOT / "vap" / "data" / "in_domain.txt"
+IN_DOMAIN = ROOT / "vndiacritics" / "data" / "in_domain.txt"
 OUT_DOMAIN = ROOT / "bench" / "data" / "diacritic_eval_v0.txt"
 
 
 @pytest.fixture(scope="module")
 def model():
-    from vap.model import Model
+    from vndiacritics.model import Model
 
     return Model.load()
 
 
 def _grade_split(model, gold_path):
-    from vap.eval import score, split_sentences
-    from vap.normalize import nfc, strip_accent_keep_case
+    from vndiacritics.eval import score, split_sentences
+    from vndiacritics.normalize import nfc, strip_accent_keep_case
 
     gold = [nfc(s) for s in split_sentences(Path(gold_path).read_text(encoding="utf-8"))]
     pred = [model.restore(strip_accent_keep_case(g)) for g in gold]
@@ -50,8 +50,8 @@ def _grade_split(model, gold_path):
 
 def _grade_lines(model, gold_path):
     """Reference pipeline: split on newlines, no punctuation normalisation."""
-    from vap.eval import score
-    from vap.normalize import nfc, strip_accent_keep_case
+    from vndiacritics.eval import score
+    from vndiacritics.normalize import nfc, strip_accent_keep_case
 
     lines = [
         nfc(s.strip())

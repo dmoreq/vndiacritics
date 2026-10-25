@@ -3,19 +3,19 @@ __pycache__/
 .venv/
 .pytest_cache/
 .ruff_cache/
-vap/data/*.trie
-vap/data/*.tsv
-vap/data/*.txt
+vndiacritics/data/*.trie
+vndiacritics/data/*.tsv
+vndiacritics/data/*.txt
 .hermes/
 Vietnamese-Accent-Prediction/
 *.tar.xz
 .tmp/
 
 # Generated clean corpus (rebuild with scripts/make_clean_corpus.py)
-vap/data-clean/*.tsv
-vap/data-clean/*.txt
-vap/data-clean/*.trie
-vap/data-clean/*.meta.json
+vndiacritics/data-clean/*.tsv
+vndiacritics/data-clean/*.txt
+vndiacritics/data-clean/*.trie
+vndiacritics/data-clean/*.meta.json
 # Derived from the unlicensed corpus plus mixed-license dictionaries; regenerate with
 # scripts/make_clean_corpus.py after fetch_dicts.sh + bench/build_typo_list.py.
-vap/data-clean/typos.json
+vndiacritics/data-clean/typos.json

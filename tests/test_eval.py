@@ -1,4 +1,4 @@
-from vap.eval import score
+from vndiacritics.eval import score
 
 # 3 tokens + 3 tokens = 6
 GOLD = ["Tôi yêu em", "Hà Nội đẹp"]

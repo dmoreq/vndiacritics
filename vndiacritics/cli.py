@@ -1,6 +1,6 @@
-"""Command line: `vap [--data DIR]` reads text on stdin, writes restored text on stdout.
+"""Command line: `vndiacritics [--data DIR]` reads text on stdin, writes restored text on stdout.
 
-`vap --accuracy GOLD_FILE` scores the model against a gold file instead, and always
+`vndiacritics --accuracy GOLD_FILE` scores the model against a gold file instead, and always
 reports the skip count so a length-changing restorer cannot hide behind a good number.
 """
 
@@ -10,12 +10,12 @@ import argparse
 import sys
 from pathlib import Path
 
-from vap.model import Model
-from vap.normalize import nfc, strip_accent_keep_case
+from vndiacritics.model import Model
+from vndiacritics.normalize import nfc, strip_accent_keep_case
 
 
 def _run_accuracy(model: Model, gold_file: Path) -> int:
-    from vap.eval import score, split_sentences
+    from vndiacritics.eval import score, split_sentences
 
     gold = [nfc(s) for s in split_sentences(gold_file.read_text(encoding="utf-8"))]
     pred = [model.restore(strip_accent_keep_case(g)) for g in gold]
@@ -35,7 +35,7 @@ def _run_stdin(model: Model) -> int:
 
 
 def main(argv: list[str] | None = None) -> int:
-    ap = argparse.ArgumentParser(prog="vap", description="Restore Vietnamese diacritics")
+    ap = argparse.ArgumentParser(prog="vndiacritics", description="Restore Vietnamese diacritics")
     ap.add_argument("--data", type=Path, default=None, help="corpus directory")
     ap.add_argument(
         "--accuracy",

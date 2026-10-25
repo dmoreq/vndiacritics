@@ -10,7 +10,7 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 SRC="$ROOT/Vietnamese-Accent-Prediction"
-DST="$ROOT/vap/data"
+DST="$ROOT/vndiacritics/data"
 UPSTREAM="https://github.com/tienthanhdhcn/Vietnamese-Accent-Prediction.git"
 PIN="290ad7dd0b8209c93e755e155609ec523d0e7f32"
 

@@ -1,4 +1,4 @@
-# Hướng dẫn sử dụng `vap`: khi nào tool đúng, khi nào tool sai
+# Hướng dẫn sử dụng `vndiacritics`: khi nào tool đúng, khi nào tool sai
 
 **Ngày**: 2026-10-23
 **Phiên bản đo**: commit `b4a1833`

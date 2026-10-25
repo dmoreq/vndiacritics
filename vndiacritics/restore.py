@@ -21,7 +21,7 @@ import math
 import re
 from typing import Protocol
 
-from vap.index import CandidateIndex
+from vndiacritics.index import CandidateIndex
 
 _MIN = float("-inf")
 

@@ -3,7 +3,7 @@
 Times the whole corpus in one span (no per-sentence clock calls in the loop) and
 reports accuracy on both corpora. Run before and after any change.
 
-Gold defaults to the ORIGINAL vap/data/in_domain.txt so that two corpora are
+Gold defaults to the ORIGINAL vndiacritics/data/in_domain.txt so that two corpora are
 graded on identical sentences; only the statistics file changes.
 """
 
@@ -19,9 +19,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from vap.eval import score, split_sentences
-from vap.model import Model
-from vap.normalize import nfc, strip_accent_keep_case
+from vndiacritics.eval import score, split_sentences
+from vndiacritics.model import Model
+from vndiacritics.normalize import nfc, strip_accent_keep_case
 
 OUT = ROOT / "bench/data/diacritic_eval_v0.txt"
 
@@ -42,8 +42,8 @@ def timed(model, sents, reps=5):
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--data", type=Path, default=ROOT / "vap/data")
-    ap.add_argument("--gold", type=Path, default=ROOT / "vap/data/in_domain.txt")
+    ap.add_argument("--data", type=Path, default=ROOT / "vndiacritics/data")
+    ap.add_argument("--gold", type=Path, default=ROOT / "vndiacritics/data/in_domain.txt")
     ap.add_argument("--tag", default="", help="suffix for the results file")
     ap.add_argument("--reps", type=int, default=5)
     args = ap.parse_args()

@@ -1,5 +1,5 @@
 [project]
-name = "vap"
+name = "vndiacritics"
 version = "0.1.0"
 description = "Vietnamese diacritic restoration"
 requires-python = ">=3.11"
@@ -9,22 +9,22 @@ dependencies = ["marisa-trie>=1.2"]
 dev = ["pytest>=8", "ruff>=0.6"]
 
 [project.scripts]
-vap = "vap.cli:main"
+vndiacritics = "vndiacritics.cli:main"
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["vap"]
+packages = ["vndiacritics"]
 # The corpus is recovered by scripts/recover_data.sh, not shipped: uni.tsv plus the
 # bigram trie are ~25 MB and the raw bigram table is 80 MB. Hatchling already drops
 # *.tsv/*.trie, but it keeps *.json, so bi.meta.json and the clean-corpus typo list
 # would ship without the data they describe. Exclude the data trees explicitly and let
 # Model.load() raise an instruction instead.
 exclude = [
-  "vap/data/**",
-  "vap/data-clean/**",
+  "vndiacritics/data/**",
+  "vndiacritics/data-clean/**",
 ]
 
 [tool.pytest.ini_options]

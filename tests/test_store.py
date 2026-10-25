@@ -2,7 +2,7 @@ import pytest
 
 pytest.importorskip("marisa_trie")
 
-from vap.store import BigramStore
+from vndiacritics.store import BigramStore
 
 
 def test_roundtrip(tmp_path):

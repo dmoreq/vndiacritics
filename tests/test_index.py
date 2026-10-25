@@ -1,4 +1,4 @@
-from vap.index import CandidateIndex
+from vndiacritics.index import CandidateIndex
 
 
 def test_candidates_for_ambiguous_key():

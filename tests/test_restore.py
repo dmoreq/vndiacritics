@@ -1,7 +1,7 @@
 import pytest
 
-from vap.index import CandidateIndex
-from vap.restore import Restorer
+from vndiacritics.index import CandidateIndex
+from vndiacritics.restore import Restorer
 
 
 def make_restorer(uni, bi):

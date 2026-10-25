@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from collections import defaultdict
 
-from vap.normalize import strip_accent
+from vndiacritics.normalize import strip_accent
 
 
 class CandidateIndex:

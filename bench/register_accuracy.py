@@ -11,9 +11,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from vap.eval import score
-from vap.model import Model
-from vap.normalize import nfc, strip_accent_keep_case
+from vndiacritics.eval import score
+from vndiacritics.model import Model
+from vndiacritics.normalize import nfc, strip_accent_keep_case
 
 
 def main() -> int:

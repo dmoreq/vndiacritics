@@ -1,6 +1,6 @@
-"""Write vap/data-clean/{uni,bi}.tsv with verified typos removed.
+"""Write vndiacritics/data-clean/{uni,bi}.tsv with verified typos removed.
 
-The source corpus (vap/data/) is never modified. Gold (in_domain.txt) is copied
+The source corpus (vndiacritics/data/) is never modified. Gold (in_domain.txt) is copied
 byte-for-byte so both corpora are graded on exactly the same sentences.
 """
 
@@ -11,8 +11,8 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-SRC = ROOT / "vap/data"
-DST = ROOT / "vap/data-clean"
+SRC = ROOT / "vndiacritics/data"
+DST = ROOT / "vndiacritics/data-clean"
 
 
 def main() -> int:

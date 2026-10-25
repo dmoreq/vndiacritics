@@ -4,10 +4,10 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from vap.data import DATA_DIR, load_bigram, load_unigram
-from vap.index import CandidateIndex
-from vap.restore import Restorer
-from vap.store import BigramStore
+from vndiacritics.data import DATA_DIR, load_bigram, load_unigram
+from vndiacritics.index import CandidateIndex
+from vndiacritics.restore import Restorer
+from vndiacritics.store import BigramStore
 
 
 class Model:

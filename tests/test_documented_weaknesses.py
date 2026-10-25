@@ -10,13 +10,13 @@ from pathlib import Path
 
 import pytest
 
-CORPUS = Path(__file__).resolve().parents[1] / "vap" / "data" / "uni.tsv"
+CORPUS = Path(__file__).resolve().parents[1] / "vndiacritics" / "data" / "uni.tsv"
 
-if os.environ.get("VAP_REQUIRE_CORPUS") == "1" and not CORPUS.exists():
+if os.environ.get("VNDIACRITICS_REQUIRE_CORPUS") == "1" and not CORPUS.exists():
 
     def test_corpus_recovered() -> None:
         pytest.fail(
-            f"VAP_REQUIRE_CORPUS=1 but corpus is missing at {CORPUS}; run ./scripts/recover_data.sh"
+            f"VNDIACRITICS_REQUIRE_CORPUS=1 but corpus is missing at {CORPUS}; run ./scripts/recover_data.sh"
         )
 
 else:
@@ -25,7 +25,7 @@ else:
 
 @pytest.fixture(scope="module")
 def model():
-    from vap.model import Model
+    from vndiacritics.model import Model
 
     return Model.load()
 
