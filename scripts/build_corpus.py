@@ -2,11 +2,30 @@
 
 The upstream repo only ships a Java n-gram counter (NGramer.java) whose output
 is the 2017 corpus; nothing in this repository could rebuild tables from raw
-text. This script is the Python replacement. It mirrors NGramer.java's
-tokenization so counts stay comparable with the 2017 corpus: whitespace-split,
-punctuation stripped from token edges, lowercase fold, keep only tokens whose
-every character is ASCII a-z or a Vietnamese letter. Tokens with interior
-disallowed characters (digits, hyphens) are dropped, as upstream does.
+text. This script is the Python replacement. Tokenization mirrors
+NGramer.java's so counts stay comparable with the 2017 corpus:
+
+- whitespace-split, punctuation stripped from token edges;
+- lowercase fold, then interior disallowed characters DELETED with the
+  surviving fragments merged into one key ("kiến-tạo" -> "kiếntạo",
+  "abc123" -> "abc"), exactly like NGramer.java's replaceAll -- the bigram
+  chain stays intact;
+- lines containing both '<' and '>' are skipped (NGramer.java's wiki-markup
+  guard);
+- empty keys are never emitted.
+
+Divergences from NGramer.java, all deliberate and harmless for the decoder:
+NFC normalization first (upstream does none; on NFD text its regex would
+strip combining marks and destroy diacritics -- our corpora are normalized);
+no "<punct>" placeholder tokens (upstream's tables contain them, but the
+restorer in vndiacritics/restore.py can never look a "<punct>" key up: lookup
+cores are bounded by alphanumeric characters, so those 174k bigram rows are
+dead weight upstream). Punctuation never breaks the bigram chain: adjacency
+across a punctuation-only token is preserved, as upstream.
+
+Case statistics (our addition, not in NGramer.java) are classified on the
+ORIGINAL cased core, before interior-character merging. A single-letter token
+like "V." classifies as ALL-CAPS, never sentence-initial, by construction.
 
 Outputs (into --outdir, sorted keys, deterministic for a given input):
   uni.tsv            key <TAB> count          lowercase syllable counts
@@ -21,10 +40,11 @@ Outputs (into --outdir, sorted keys, deterministic for a given input):
                      information about the token being a proper noun)
   abbreviations.txt  type <TAB> count         ALL-CAPS types, len >= 2
 
-Sentence boundary for "initial": start of line, or a token whose trailing
-punctuation ends with . ! ? … (a raw token may carry trailing quotes/brackets
-after the period). Raw corpora here are line-per-sentence (subtitles, legal
-text), so line starts dominate.
+Sentence boundary for "initial": start of line, or after any raw token whose
+trailing punctuation ends with . ! ? … (a raw token may carry trailing
+quotes/brackets after the period; punctuation-only tokens still update the
+boundary). Raw corpora here are line-per-sentence (subtitles, legal text),
+so line starts dominate.
 
 Memory guard: when the bigram dict exceeds --prune-at entries, count-1 entries
 are dropped. Deterministic for a given input; bounds RAM for web-scale inputs
@@ -68,12 +88,17 @@ class CorpusBuilder:
         self._prune_at = prune_at
 
     def add_line(self, line: str) -> None:
+        if "<" in line and ">" in line:
+            return
         initial = True
         prev_cased: str | None = None
         prev_key: str | None = None
         for raw in line.split():
             core = unicodedata.normalize("NFC", _core(raw))
+            ends = _ends_sentence(raw)
             if not core:
+                # Punctuation-only token: it can still close a sentence.
+                initial = ends
                 continue
             key = fold(core)
             if key is not None:
@@ -85,7 +110,7 @@ class CorpusBuilder:
                         self.case_bi[prev_cased + " " + core] += 1
                 prev_cased = core
                 prev_key = key
-            initial = _ends_sentence(raw)
+            initial = ends
 
     def _count_case(self, key: str, core: str, initial: bool) -> None:
         stats = self.case.setdefault(key, CaseCounts())
@@ -117,18 +142,17 @@ def _core(token: str) -> str:
 
 
 def fold(token: str) -> str | None:
-    """Lowercase fold a cased core into a corpus key, or None to drop it.
+    """Lowercase fold a cased core into a corpus key, or None when nothing survives.
 
-    Mirrors NGramer.java: NFC-normalize, lowercase, drop tokens containing any
+    Mirrors NGramer.java's replaceAll semantics: lowercase, DELETE every
     character outside the Vietnamese syllable alphabet (digits, hyphens,
-    foreign scripts).
+    foreign scripts) and merge the surviving fragments into one key
+    ("kiến-tạo" -> "kiếntạo", "abc123" -> "abc"). Divergence: NFC-normalize
+    first, which upstream does not (upstream destroys diacritics on NFD text).
     """
     token = unicodedata.normalize("NFC", token).lower()
-    if not token:
-        return None
-    if not all(ch in _ALLOWED for ch in token):
-        return None
-    return token
+    token = "".join(ch for ch in token if ch in _ALLOWED)
+    return token or None
 
 
 def _is_capitalized(core: str) -> bool:

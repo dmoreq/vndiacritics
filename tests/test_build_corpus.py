@@ -29,6 +29,44 @@ def test_fold_mirrors_ngramer():
     assert bc.fold("to\u0302\u0309i") == "t\u1ed5i"  # NFD "tổi" (hỏi) composes via NFC
 
 
+def test_fold_merges_fragments_like_ngramer():
+    """NGramer.java replaceAll: interior disallowed chars are DELETED and the
+    fragments merge into one key; the bigram chain stays intact."""
+    assert bc.fold("kiến-tạo") == "kiếntạo"
+    assert bc.fold("abc123") == "abc"
+    b = make_builder()
+    b.add_line("kiến-tạo gần\n")
+    assert b.uni["kiếntạo"] == 1
+    assert ("gần tạo" not in b.bi) and ("tạo gần" not in b.bi)
+    assert b.bi["kiếntạo gần"] == 1
+
+
+def test_skip_lines_with_angle_brackets():
+    b = make_builder()
+    b.add_line("thẻ <xml> markup bị bỏ qua\n")
+    b.add_line("dòng thường vẫn đếm\n")
+    assert "thẻ" not in b.uni and "markup" not in b.uni
+    assert b.uni["dòng"] == 1
+
+
+def test_punctuation_only_token_updates_sentence_boundary():
+    """Reviewer Finding 1: a standalone '.'/'...'/'-' between words must still
+    move the sentence boundary for the tokens after it."""
+    b = make_builder()
+    b.add_line('Kết thúc 2024... . "Nói." - Nói lại\n')
+    # 'Kết' is sentence-initial; 'Nói' after '...' and '.' is also initial;
+    # the second 'Nói' after '-' is MID-sentence (dash is not a sentence end).
+    s_ket = b.case["kết"]
+    assert (s_ket.cap, s_ket.initial) == (1, 1)
+    s_noi = b.case["nói"]
+    assert (s_noi.cap, s_noi.initial) == (2, 1)
+    # The second 'Nói' is mid-sentence capitalized -> pair evidence counted
+    # ('lại' is lowercase, so 'Nói lại' carries no proper-noun evidence):
+    assert b.case_bi == {"Nói Nói": 1}
+    # No cross-sentence pair may exist ('năm Kết' style false positives):
+    assert not any("kết" in k.split()[1] for k in b.case_bi)
+
+
 def test_core_strips_edges_only():
     assert bc._core('"kết"') == "kết"
     assert bc._core("(được)") == "được"

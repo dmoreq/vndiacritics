@@ -1,0 +1,30 @@
+{
+  "data": "/Users/quy.doan/Workspace/personal/vietnam-accent/vndiacritics/data",
+  "gold": "/Users/quy.doan/Workspace/personal/vietnam-accent/vndiacritics/data/in_domain.txt",
+  "in_domain": {
+    "accuracy": 0.9605,
+    "sent_per_s": 1850
+  },
+  "out_domain": {
+    "accuracy": 0.9558,
+    "sent_per_s": 2691
+  },
+  "in_domain_runs": [
+    1809,
+    1850,
+    1801,
+    1850,
+    1882
+  ],
+  "out_domain_runs": [
+    2657,
+    2691,
+    2765,
+    2703,
+    2504
+  ],
+  "in_domain_range": [
+    1801,
+    1882
+  ]
+}
