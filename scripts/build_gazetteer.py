@@ -21,12 +21,13 @@ _KEEP_FEATURE = frozenset({"A", "P"})
 
 
 def person_names(persons_dir: Path) -> set[str]:
+    """Read the two full-name files explicitly; a glob would swallow GeoNames
+    VN.txt when both live in the same fetch directory."""
     names: set[str] = set()
-    for path in sorted(persons_dir.glob("*.txt")):
-        if path.name.startswith("boy_no") or path.name.startswith("girl_no"):
-            continue  # accent-stripped variants only add noise
-        if "one_word" in path.name:
-            continue  # single given names are too ambiguous as evidence
+    for filename in ("boy.txt", "girl.txt"):
+        path = persons_dir / filename
+        if not path.exists():
+            continue
         with open(path, encoding="utf-8") as fh:
             for line in fh:
                 name = unicodedata.normalize("NFC", line.strip())
