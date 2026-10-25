@@ -89,11 +89,13 @@ def main(argv: list[str] | None = None) -> int:
         bz2.open(args.dump, "rt", encoding="utf-8", errors="replace") as fh,
         open(args.out, "w", encoding="utf-8") as out,
     ):
-        while True:
+        eof = False
+        while not eof:
             chunk = fh.read(1 << 24)
             if not chunk:
+                # EOF: process the trailing complete pages once, then stop.
                 matches = list(_PAGE_RE.finditer(buffer))
-                buffer = ""
+                eof = True
             else:
                 buffer += chunk
                 matches = list(_PAGE_RE.finditer(buffer))
