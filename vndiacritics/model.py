@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 from vndiacritics.data import DATA_DIR, load_bigram, load_unigram
@@ -35,12 +36,21 @@ class Model:
         if not trie_path.exists() or not meta_path.exists():
             BigramStore.build(load_bigram(d / "bi.tsv"), trie_path)
         store = BigramStore.load(trie_path)
+        # corpus-measured smoothing override: the auto-scaled bigram_conf_k is
+        # calibrated for the 2017 corpus; a different corpus must carry its own
+        # measured K in model.json (see docs/reports/2026-10-25-corpus-v2.md).
+        conf_k: int | None = None
+        model_json = d / "model.json"
+        if model_json.exists():
+            conf_k = int(json.loads(model_json.read_text(encoding="utf-8"))["bigram_conf_k"])
         # Case statistics are optional: present in corpus v2 (case.tsv), absent in
         # the 2017 corpus. case="correct" raises a helpful error without them.
         truecaser = None
         if (d / "case.tsv").exists():
             truecaser = Truecaser(load_case_tables(d))
-        restorer = Restorer(unigram, CandidateIndex(unigram), store, truecaser=truecaser)
+        restorer = Restorer(
+            unigram, CandidateIndex(unigram), store, bigram_conf_k=conf_k, truecaser=truecaser
+        )
         return cls(restorer)
 
     def restore(self, text: str, case: str = "preserve") -> str:

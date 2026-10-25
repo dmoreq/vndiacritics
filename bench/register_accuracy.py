@@ -4,6 +4,7 @@ comparison against the Java reference numbers. Writes bench/register_results.jso
 
 from __future__ import annotations
 
+import argparse
 import json
 import sys
 from pathlib import Path
@@ -17,8 +18,12 @@ from vndiacritics.normalize import nfc, strip_accent_keep_case
 
 
 def main() -> int:
-    src = ROOT / "bench/data/diacritic_eval_v0.txt"
-    model = Model.load()
+    ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    ap.add_argument("--data", type=Path, default=None, help="corpus directory")
+    ap.add_argument("--src", type=Path, default=ROOT / "bench/data/diacritic_eval_v0.txt")
+    args = ap.parse_args()
+    src = args.src
+    model = Model.load(args.data)
 
     buckets: dict[str, list[str]] = {}
     current = "unknown"

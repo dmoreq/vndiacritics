@@ -39,7 +39,10 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from pathlib import Path
 
-INITIAL_FOLD = 8
+# Measured on bench/data/cased_eval_v0.txt (2026-10-25): 88.89% at 8, 90.22% at
+# 32, 90.38% at 64, saturating at 64. Below 64, sentence-initial content words
+# whose lowercase usage dominates ("Bên", "Ngày") lose their capital.
+INITIAL_FOLD = 64
 CONTINUATION_WEIGHT = 10
 _SENTENCE_END = frozenset(".!?…")
 _CLOSERS = "\"')]}>"
@@ -147,8 +150,14 @@ class Truecaser:
         s = self._s
         lower_count = s.lower.get(word, 0)
         cap_count = s.cap.get(word, 0)
-        allcap_count = s.allcap.get(word, 0)
+        # The builder merges interior non-letter characters ("USD/VND" folds to
+        # key "usdvnd"), so check the folded key too for acronym attestations.
+        allcap_count = s.allcap.get(word, 0) or s.allcap.get(_folded(word), 0)
         if lower_count + cap_count + allcap_count == 0:
+            # A bare ASCII letter (contract labels "Bên A", option lists) is
+            # conventionally uppercase; leave other OOV words untouched.
+            if len(core) == 1 and core.isascii() and core.isalpha():
+                return word.upper()
             return None  # OOV: positional copy, never invent case
         if _is_allcaps(core) and allcap_count > lower_count + cap_count:
             return word.upper()  # attested acronym: honor the input's casing
@@ -191,3 +200,8 @@ def _strip_edges(token: str) -> str:
     while j > i and not token[j - 1].isalpha():
         j -= 1
     return token[i:j]
+
+
+def _folded(word: str) -> str:
+    """Reproduce build_corpus.fold on a runtime word: keep Vietnamese letters."""
+    return "".join(ch for ch in word.lower() if ch.isalpha())

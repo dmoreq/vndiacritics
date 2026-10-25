@@ -38,7 +38,7 @@ shasum -a 256 "$WIKI_FILE" "$OPUS_FILE" "$LEGAL_FILE" | tee "$WORK/manifest.sha2
 echo "== extracting (deterministic; sampling via --every) =="
 PY="$ROOT/.venv/bin/python"
 if [ ! -f "$WORK/wiki.txt" ]; then
-  "$PY" "$ROOT/scripts/extract_wiki_text.py" "$WIKI_FILE" "$WORK/wiki.txt" --every 7
+  "$PY" "$ROOT/scripts/extract_wiki_text.py" "$WIKI_FILE" "$WORK/wiki.txt" --every 2
 fi
 if [ ! -f "$WORK/subtitles.txt" ]; then
   "$PY" "$ROOT/scripts/extract_opus_vi.py" "$OPUS_FILE" "$WORK/subtitles.txt"
@@ -70,8 +70,16 @@ if [ ! -f "$OUT/names_persons.txt" ]; then
     --persons "$WORK/gazetteer" --places "$WORK/gazetteer" --outdir "$OUT"
 fi
 
-echo "== merging =="
+echo "== merging (v1 news corpus is the fourth source: it carries the news-register mass) =="
 "$PY" "$ROOT/scripts/merge_corpus.py" \
-  --inputs "$WORK/build-wiki" "$WORK/build-subtitles" "$WORK/build-legal" \
+  --inputs "$ROOT/vndiacritics/data" "$WORK/build-wiki" "$WORK/build-subtitles" "$WORK/build-legal" \
   --outdir "$OUT"
+# K re-measured on this corpus (docs/reports/2026-10-25-corpus-v2.md); the
+# auto-scaled default is calibrated for v1's corpus mass.
+cat > "$OUT/model.json" <<'JSON'
+{
+  "bigram_conf_k": 1000,
+  "note": "Measured with bench/ab_confidence.py; re-run the sweep after any mixture change."
+}
+JSON
 echo "corpus v2 ready"
