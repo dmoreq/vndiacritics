@@ -42,7 +42,7 @@ Apple M3, Python 3.13, single process, no GPU.
 | out-of-domain, all registers (55 sentences), default corpus | 883 | **95.58%** | ~2,450 |
 | in-domain with corpus v2b (register-balanced) | 8995 | 95.08% | ~1,140 |
 | out-of-domain with corpus v2b | 883 | **96.15%** | ~1,130 |
-| cased eval, `case="correct"` (needs v2b) | 603 | **90.38%** | — |
+| cased eval, `case="correct"` (needs v2b) | 603 | **90.22%** | — |
 
 The number-context bug (a numeric token corrupting its neighbours) is fixed as of
 2026-10-25; the accuracy column reflects the fix. Corpus v2b trades 1 in-domain
@@ -129,7 +129,7 @@ matter in practice, including a numeric token corrupting its neighbouring words.
 
 ## Roadmap
 
-- ~~Case correction~~ — shipped 2026-10-25 as `case="correct"` (90.38% case-sensitive
+- ~~Case correction~~ — shipped 2026-10-25 as `case="correct"` (90.22% case-sensitive
   on the cased eval; needs corpus v2b). See
   [docs/reports/2026-10-25-case-correction.md](docs/reports/2026-10-25-case-correction.md).
 - Conversational register: largely closed by corpus v2b (89.89% → 92.02%).

@@ -37,6 +37,10 @@ unchanged, pinned by the existing tests (96 pass unmodified).
 |---|---:|---:|---:|---:|---:|
 | accuracy | 88.89% | 90.22% | **90.38%** | 90.38% | 90.38% |
 
+(The sweep ran with the auto-scaled K; the shipped config pins K=1000 via
+model.json, which flips one diacritic choice and lands at **90.22%** overall
+— the number of record. Gate margin unchanged.)
+
 Final per-register (FOLD=64, v2b):
 
 | Register | correct | preserve baseline | Delta |
@@ -44,12 +48,12 @@ Final per-register (FOLD=64, v2b):
 | news | **93.88%** | 78.91% | +14.97 |
 | official | 91.88% | 82.50% | +9.38 |
 | conversational | 90.44% | 79.41% | +11.03 |
-| contracts | 85.62% | 73.12% | +12.50 |
-| **overall** | **90.38%** | 78.44% | **+11.94** |
+| contracts | 85.00% | 72.50% | +12.50 |
+| **overall** | **90.22%** | 78.28% | **+11.94** |
 
-Gate: >= 85% case-sensitive token accuracy — **PASS** (90.38%).
+Gate: >= 85% case-sensitive token accuracy — **PASS** (90.22%).
 
-## 3. Remaining error modes (70/603 tokens)
+## 3. Remaining error modes (~69/603 tokens)
 
 - Sentence-initial title words whose lowercase usage dominates the mixture
   ("Bên" in contracts: mid-sentence "bên" far outweighs initial "Bên") —

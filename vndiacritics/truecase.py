@@ -39,9 +39,10 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from pathlib import Path
 
-# Measured on bench/data/cased_eval_v0.txt (2026-10-25): 88.89% at 8, 90.22% at
-# 32, 90.38% at 64, saturating at 64. Below 64, sentence-initial content words
-# whose lowercase usage dominates ("Bên", "Ngày") lose their capital.
+# Measured on bench/data/cased_eval_v0.txt (2026-10-25, auto-K): 88.89% at 8,
+# 90.22% at 32, 90.38% at 64, saturating at 64. Below 64, sentence-initial
+# content words whose lowercase usage dominates ("Bên", "Ngày") lose their
+# capital. Shipped-config number of record: 90.22% (K=1000 via model.json).
 INITIAL_FOLD = 64
 CONTINUATION_WEIGHT = 10
 _SENTENCE_END = frozenset(".!?…")
@@ -144,6 +145,25 @@ class Truecaser:
             initial = _ends_sentence(raw)
         return out
 
+    def _continuation_bonus(self, prev_cased: str | None, word: str) -> int:
+        """Capitalized-bigram + gazetteer evidence for `word` after `prev_cased`."""
+        if prev_cased is None or not prev_cased[:1].isupper():
+            return 0
+        s = self._s
+        # case_bi.tsv stores the pair as OBSERVED: the second word may be
+        # written lowercase inside the name ("Tài chính") or capitalized
+        # ("Hà Nội"), so look up both forms.
+        pair = s.bigrams.get(prev_cased + " " + word, 0) + s.bigrams.get(
+            prev_cased + " " + _title(word), 0
+        )
+        bonus = 0
+        if pair:
+            bonus += CONTINUATION_WEIGHT * pair
+        if _title(word) in s.gazetteer:
+            # Fires even without an attested pair: single-token gazetteer names.
+            bonus += CONTINUATION_WEIGHT * (pair + 1)
+        return bonus
+
     def _decide(self, core: str, word: str, initial: bool, prev_cased: str | None) -> str | None:
         if not core:
             return None  # punctuation-only token: nothing to decide
@@ -161,30 +181,11 @@ class Truecaser:
             return None  # OOV: positional copy, never invent case
         if _is_allcaps(core) and allcap_count > lower_count + cap_count:
             return word.upper()  # attested acronym: honor the input's casing
-        bonus = 0
-        if prev_cased is not None and prev_cased[:1].isupper():
-            # case_bi.tsv stores the pair as OBSERVED: the second word may be
-            # written lowercase inside the name ("Tài chính") or capitalized
-            # ("Hà Nội"), so look up both forms.
-            pair = s.bigrams.get(prev_cased + " " + word, 0) + s.bigrams.get(
-                prev_cased + " " + _title(word), 0
-            )
-            if pair:
-                bonus += CONTINUATION_WEIGHT * pair
-            if _title(word) in s.gazetteer:
-                bonus += CONTINUATION_WEIGHT * (pair + 1)
-        if initial:
-            candidates = {
-                "lower": lower_count,
-                "title": (cap_count + s.initial.get(word, 0) + bonus) * INITIAL_FOLD,
-                "allcap": allcap_count,
-            }
-        else:
-            candidates = {
-                "lower": lower_count,
-                "title": cap_count + bonus,
-                "allcap": allcap_count,
-            }
+        bonus = self._continuation_bonus(prev_cased, word)
+        title_count = cap_count + (s.initial.get(word, 0) if initial else 0)
+        # At sentence start the ratio compares against INITIAL_FOLD (module doc).
+        title_score = (title_count + bonus) * (INITIAL_FOLD if initial else 1)
+        candidates = {"lower": lower_count, "title": title_score, "allcap": allcap_count}
         best = max(candidates, key=candidates.get)
         if best == "title":
             return _title(word)
