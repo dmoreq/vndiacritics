@@ -1,0 +1,55 @@
+# Cased evaluation set v0 for the truecaser (case="correct" mode).
+# License: CC0 (self-authored, 2026-10-25). Analogous to diacritic_eval_v0.txt:
+# `# === register: X ===` markers, one sentence per line, no trailing spaces.
+# Grading contract: input is fully lowercased and accent-stripped
+# (strip_accent); the model must restore BOTH diacritics and letter case;
+# scoring is case-sensitive token accuracy via eval.score(case_sensitive=True).
+# Registers mirror diacritic_eval_v0 so per-register deltas are comparable.
+
+# === register: news ===
+Hà Nội sẽ có thêm ba tuyến đường sắt đô thị trước năm 2035.
+Nguyễn Văn An, chủ tịch Ủy ban nhân dân tỉnh Quảng Nam, đã ký quyết định mới.
+Bộ Tài chính công bố báo cáo ngân sách nhà nước quý III.
+Thị trường chứng khoán Việt Nam tăng mạnh phiên hôm nay sau tin tức lãi suất.
+Công ty Cổ phần Vinamilk đạt doanh thu hơn 20 nghìn tỷ đồng trong năm ngoái.
+Thủ tướng Chính phủ chủ trì cuộc họp thường kỳ về kinh tế xã hội.
+Giá vàng miếng SJC giảm nhẹ về mức 78 triệu đồng mỗi lượng.
+Đà Nẵng đón hơn bốn triệu lượt khách du lịch trong dịp hè.
+Báo Thanh Nien đưa tin vụ án đã được đưa ra xét xử tại Tòa án nhân dân.
+Ngân hàng Nhà nước neo tỷ giá USD/VND quanh mức 24.800 đồng.
+
+# === register: official ===
+Căn cứ Luật Đầu tư số 61/2020/QH14 ngày 17 tháng 6 năm 2020.
+Ủy ban nhân dân huyện Gia Lâm hướng dẫn triển khai nhiệm vụ trọng tâm.
+Về đề án quản lý rừng đặc dụng, Sở Nông nghiệp và Phát triển nông thôn chịu trách nhiệm chính.
+Quyết định có hiệu lực thi hành sau 15 ngày, kể từ ngày ký.
+Bộ Giao thông Vận tải phối hợp với Bộ Xây dựng rà soát quy hoạch.
+Trường hợp nộp hồ sơ qua mạng, cơ quan tiếp nhận trả kết quả trong hai ngày làm việc.
+Kinh phí thực hiện được bố trí từ ngân sách nhà nước theo phân cấp hiện hành.
+Điều 5. Trách nhiệm của Ủy ban nhân dân cấp xã trong quản lý đất đai.
+Văn phòng Ủy ban nhân dân tỉnh tổng hợp và báo cáo Thủ tướng Chính phủ.
+Cơ quan chủ quản xem xét, sửa đổi, bổ sung nội dung chưa phù hợp.
+
+# === register: conversational ===
+Tôi vừa xem xong phim mới của Trấn Thành ở rạp gần nhà.
+Mai bạn có rảnh không, đi cà phê ở Phan Đình Phùng nhé?
+Bà ngoại tôi thường nói câu này khi nấu ăn cuối tuần.
+Sang năm chắc mình chuyển vào Sài Gòn làm việc thật rồi.
+Anh đưa em cái túi màu đỏ để bên trong tủ lạnh giúp với.
+Hôm qua tao với mày đã hứa đi xem bóng đá ở sân Hàng Đẫy mà.
+Trời hôm nay nóng quá, bật điều hòa lên đi em ơi.
+Chị ấy bảo ca bệnh đã khỏe nhưng chưa đi làm lại được.
+Cuối tuần này gia đình tôi về quê ngoại ở Hà Tĩnh thăm ông bà.
+Bạn cứ gửi tài liệu qua Zalo cho tôi, tối tôi xem và trả lời sau.
+
+# === register: contracts ===
+Bên A có trách nhiệm bàn giao tài sản cho Bên B chậm nhất ngày 30 tháng 6.
+Hợp đồng thuê nhà số 12/HD/2025 được ký kết tại Thành phố Hồ Chí Minh.
+Công ty TNHH Một thành viên Công nghiệp Sáng Tạo đóng tại Khu công nghiệp Tân Tạo.
+Mọi tranh chấp phát sinh sẽ được giải quyết tại Trọng tài Quốc tế Việt Nam.
+Giá trị hợp đồng không bao gồm thuế giá trị gia tăng theo quy định hiện hành.
+Đại diện theo pháp luật của Bên Bán là ông Trần Văn Bình, chức vụ Giám đốc.
+Bên B phải thanh toán đợt hai trong vòng mười ngày làm việc kể từ ngày nghiệm thu.
+Hợp đồng được lập thành bốn bản có giá trị pháp lý như nhau.
+Điều 12. Quyền và nghĩa vụ của các Bên sau khi chấm dứt hợp đồng.
+Pháp luật Việt Nam là luật áp dụng đối với hợp đồng này.
