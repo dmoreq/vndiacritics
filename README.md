@@ -132,7 +132,7 @@ matter in practice, including a numeric token corrupting its neighbouring words.
 - ~~Case correction~~ — shipped 2026-10-25 as `case="correct"` (90.22% case-sensitive
   on the cased eval; needs corpus v2b). See
   [docs/reports/2026-10-25-case-correction.md](docs/reports/2026-10-25-case-correction.md).
-- Conversational register: largely closed by corpus v2b (89.89% → 92.02%).
+- Conversational register: largely closed by corpus v2b (89.89% → 92.55%).
 
 ## Data & license
 
