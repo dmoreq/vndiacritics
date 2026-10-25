@@ -31,10 +31,18 @@ class Model:
         # The trie and its metadata sidecar are one cache artifact: a trie without
         # its sidecar cannot answer size/total, so rebuilding both is cheaper than a
         # partial load. This covers a MISSING sidecar only -- not a stale or corrupt
-        # one, which would need an atomic cache protocol.
+        # one, which would need an atomic cache protocol. The rebuild source may be
+        # the plain TSV or its gzip form (the recovery scripts keep the large TSVs
+        # compressed once the trie is built).
         meta_path = trie_path.with_suffix(".meta.json")
         if not trie_path.exists() or not meta_path.exists():
-            BigramStore.build(load_bigram(d / "bi.tsv"), trie_path)
+            bi_source = next((s for s in (d / "bi.tsv", d / "bi.tsv.gz") if s.exists()), None)
+            if bi_source is None:
+                raise FileNotFoundError(
+                    f"bigram table not found in {d} (expected bi.tsv or bi.tsv.gz); "
+                    "run scripts/recover_data.sh or scripts/fetch_corpus_v2.sh"
+                )
+            BigramStore.build(load_bigram(bi_source), trie_path)
         store = BigramStore.load(trie_path)
         # corpus-measured smoothing override: the auto-scaled bigram_conf_k is
         # calibrated for the 2017 corpus; a different corpus must carry its own
