@@ -54,8 +54,24 @@ for SRC in wiki subtitles legal; do
   fi
 done
 
+echo "== gazetteers (truecaser reinforcement) =="
+OUT="${1:-$ROOT/vndiacritics/data-v2}"
+mkdir -p "$WORK/gazetteer"
+NAMEDB_URL="https://raw.githubusercontent.com/duyet/vietnamese-namedb/master"
+for F in boy.txt girl.txt; do
+  fetch "$NAMEDB_URL/$F" "$WORK/gazetteer/$F"
+done
+fetch "https://download.geonames.org/export/dump/VN.zip" "$WORK/gazetteer/VN.zip"
+if [ ! -f "$WORK/gazetteer/VN.txt" ]; then
+  (cd "$WORK/gazetteer" && unzip -oq VN.zip VN.txt)
+fi
+if [ ! -f "$OUT/names_persons.txt" ]; then
+  "$PY" "$ROOT/scripts/build_gazetteer.py" \
+    --persons "$WORK/gazetteer" --places "$WORK/gazetteer" --outdir "$OUT"
+fi
+
 echo "== merging =="
 "$PY" "$ROOT/scripts/merge_corpus.py" \
   --inputs "$WORK/build-wiki" "$WORK/build-subtitles" "$WORK/build-legal" \
-  --outdir "${1:-$ROOT/vndiacritics/data-v2}"
+  --outdir "$OUT"
 echo "corpus v2 ready"
