@@ -1,0 +1,4 @@
+# Runtime dependencies. Keep in sync with pyproject.toml [project].dependencies.
+# This file exists so the safety pre-commit hook (python-safety-dependencies-check)
+# has a requirements-format input; the package itself installs from pyproject.toml.
+marisa-trie>=1.2

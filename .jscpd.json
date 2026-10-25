@@ -1,0 +1,28 @@
+{
+  "threshold": 0.0,
+  "reporters": ["console"],
+  "format": ["python"],
+  "ignorePattern": [
+    "(import|from)\\s+.*"
+  ],
+  "ignore": [
+    "**/node_modules/**",
+    "**/__pycache__/**",
+    "**/.venv/**",
+    "**/tests/**",
+    "**/data/**",
+    "**/data-clean/**",
+    "**/bench/**",
+    "**/build/**",
+    "**/dist/**",
+    "**/.tmp/**",
+    "**/*.md",
+    "**/*.txt",
+    "**/*.json",
+    "**/*.yaml",
+    "**/*.yml"
+  ],
+  "path": [
+    "vap"
+  ]
+}
