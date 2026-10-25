@@ -6,6 +6,7 @@
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 
 Restores Vietnamese diacritics on text written without them, in pure Python, on CPU.
+Optionally restores letter case as well (truecasing).
 
 ```python
 from vndiacritics import Model
@@ -13,18 +14,21 @@ from vndiacritics import Model
 m = Model.load()
 m.restore("toi yeu viet nam")  # 'tôi yêu việt nam'
 m.restore("Hop dong so 02/HD/2025")  # 'Hợp đồng số 02/HD/2025'
+m.restore("toi yeu viet nam", case="correct")  # 'Tôi yêu Việt Nam' (needs corpus v2b)
 ```
 
 The corpus is **not shipped in the wheel** (it is rebuilt from git history). Install the
 package, then run `./scripts/recover_data.sh` once, or point `Model.load(directory=...)` at
 an existing corpus directory. Calling `Model.load()` without a corpus raises an error
-naming that command.
+naming that command. `case="correct"` additionally needs corpus v2b
+(`./scripts/fetch_corpus_v2.sh`, then `Model.load("vndiacritics/data-v2b")`).
 
 Command line:
 
 ```bash
 ./scripts/recover_data.sh          # once: build vndiacritics/data/ from git history
 echo "toi yeu viet nam" | vndiacritics      # 'tôi yêu việt nam'
+echo "toi yeu viet nam" | vndiacritics --data vndiacritics/data-v2b --case correct
 vndiacritics --accuracy vndiacritics/data/in_domain.txt
 ```
 
@@ -34,8 +38,16 @@ Apple M3, Python 3.13, single process, no GPU.
 
 | Dataset | Tokens | Accuracy | Sentences/s |
 |---|---:|---:|---:|
-| in-domain news (589 sentences) | 8995 | **96.01%** | 2,182 (median of 8; 1,892-2,294) |
-| out-of-domain, all registers (55 sentences) | 883 | **95.24%** | 2,879 |
+| in-domain news (589 sentences), default corpus | 8995 | **96.05%** | ~1,850 |
+| out-of-domain, all registers (55 sentences), default corpus | 883 | **95.58%** | ~2,450 |
+| in-domain with corpus v2b (register-balanced) | 8995 | 95.08% | ~1,140 |
+| out-of-domain with corpus v2b | 883 | **96.15%** | ~1,130 |
+| cased eval, `case="correct"` (needs v2b) | 603 | **90.38%** | — |
+
+The number-context bug (a numeric token corrupting its neighbours) is fixed as of
+2026-10-25; the accuracy column reflects the fix. Corpus v2b trades 1 in-domain
+point for +2.1 conversational and +0.5 news — see
+[docs/reports/2026-10-25-corpus-v2.md](docs/reports/2026-10-25-corpus-v2.md).
 
 Throughput was measured on a machine under load, so treat the median as indicative and the
 speedup as the reliable figure: 1,841 → 2,195 sent/s (**1.19x**) from the rare-pair skip,
@@ -43,19 +55,19 @@ measured A/B within one process. Accuracy is stable at 96.01% across every run.
 
 Per register (out-of-domain):
 
-| Register | Tokens | Accuracy |
-|---|---:|---:|
-| news | 206 | **98.54%** |
-| official documents | 178 | **95.51%** |
-| contracts | 205 | **95.12%** |
-| conversational | 188 | **89.89%** |
+| Register | Tokens | Accuracy (v1) | v2b |
+|---|---:|---:|---:|
+| news | 206 | **98.54%** | 99.03% |
+| official documents | 178 | 95.51% | 95.51% |
+| contracts | 205 | 95.12% | 95.61% |
+| conversational | 188 | 89.89% | **92.02%** |
 
-| Resource | Value |
-|---|---|
-| Load time | 0.29 s |
-| Resident memory | 113 MB |
-| Bigram table on disk | 22 MB (marisa-trie) |
-| Runtime dependencies | `marisa-trie` only |
+| Resource | v1 (default) | v2b (optional) |
+|---|---|---|
+| Load time | 0.29 s | 8.2 s |
+| Bigram table on disk | 22 MB (marisa-trie) | 240 MB |
+| Resident memory | 113 MB | ~1 GB |
+| Runtime dependencies | `marisa-trie` only | `marisa-trie` only |
 
 Accuracy is register-dependent by about 9 points, which is larger than the gap between
 competing models. Conversational text is the weak spot; news and official text are strong.
@@ -76,6 +88,12 @@ round-trips without being normalised.
 4. **Rare-pair skip.** A pair where either word's unigram count is below `1e-4 * |V|` scores
    UNK without consulting the table. Avoids ~33% of bigram lookups; measured cost 0.01
    accuracy points. Set `Restorer(..., bigram_skip_below=0)` to disable.
+5. **n1-confidence smoothing.** The bigram ratio is interpolated toward the unigram
+   (`p = (n2 + K*p_uni)/(n1 + K)`, auto-scaled K) so thin-context pairs cannot outrank
+   massive ones. This fixed the number-adjacency bug and gained +0.045 in-domain.
+6. **Truecaser (optional).** `case="correct"` runs a statistical case decider
+   (`vndiacritics/truecase.py`) over the restored words: per-type case frequencies,
+   ratio-based sentence-initial rule, capitalized-bigram continuations, gazetteers.
 
 Known limitation: `so` is not disambiguated to `số` when followed by a number
 (`so 12` → `so 12`), because `đồng so` is 10x more frequent in the corpus than `đồng số`.
@@ -88,9 +106,11 @@ unigram prior's position, and stripping punctuation before lookup.
 
 ```bash
 ./scripts/recover_data.sh
-.venv/bin/pytest -q                     # 58 tests
-.venv/bin/python bench/baseline.py      # accuracy + throughput, both corpora
-.venv/bin/python bench/register_accuracy.py
+.venv/bin/pytest -q                          # 96 tests
+.venv/bin/python bench/baseline.py           # accuracy + throughput, both corpora
+.venv/bin/python bench/register_accuracy.py  # per-register breakdown
+./scripts/fetch_corpus_v2.sh                 # optional: corpus v2b + case stats
+.venv/bin/python bench/cased_eval.py --data vndiacritics/data-v2b
 ```
 
 ## Before you use this
@@ -109,9 +129,10 @@ matter in practice, including a numeric token corrupting its neighbouring words.
 
 ## Roadmap
 
-- Case correction: `Model.restore(text, case="correct")` alongside the default
-  `"preserve"` mode (`cong ty co phan` → `Công ty Cổ phần`). The corpus currently
-  carries no capitalization signal, so this needs a new corpus pass or a rule layer.
+- ~~Case correction~~ — shipped 2026-10-25 as `case="correct"` (90.38% case-sensitive
+  on the cased eval; needs corpus v2b). See
+  [docs/reports/2026-10-25-case-correction.md](docs/reports/2026-10-25-case-correction.md).
+- Conversational register: largely closed by corpus v2b (89.89% → 92.02%).
 
 ## Data & license
 

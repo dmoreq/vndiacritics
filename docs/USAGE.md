@@ -35,6 +35,10 @@ Không dịch, không sửa chính tả, không đổi từ.
 thoại là **8.65 điểm** — lớn hơn mọi khác biệt khác trong tool. Lý do: corpus huấn luyện là
 tin tức và Wikipedia, nên thiếu từ đệm khẩu ngữ (`nha`, `nhe`, `a`, `ha`).
 
+Cập nhật 2026-10-25: corpus tùy chọn **v2b** giảm chênh lệch này xuống 6.5 điểm (hội thoại
+92.02%) — chạy `--data vndiacritics/data-v2b`. Xem
+[reports/2026-10-25-corpus-v2.md](reports/2026-10-25-corpus-v2.md).
+
 Nếu bạn xử lý chat, comment, tin nhắn: **phải đọc lại kết quả**.
 
 ---
@@ -143,6 +147,22 @@ Tên địa danh và tên riêng bị đổi dấu thành từ khác nghĩa. Kh�
 tại.
 
 ---
+
+## 4b. Khôi phục chữ hoa (`case="correct"`) — mới 2026-10-25
+
+Ngoài dấu thanh, tool có thể khôi phục CHỮ HOA từ corpus v2b (Wiki + phụ đề + văn bản
+pháp luật + corpus news gốc):
+
+```
+echo "toi o ha noi" | vndiacritics --data vndiacritics/data-v2b --case correct
+-> Tôi ở Hà Nội
+```
+
+Độ chính xác case-sensitive: **90.38%** toàn tập (news 93.88%, hội thoại 90.44%, hợp đồng
+85.62%). Yếu điểm: từ đầu câu mà dạng thường áp đảo trong corpus ("Bên" trong hợp đồng) có
+thể bị bỏ thường; tên riêng không có thống kê sẽ được giữ nguyên case của input.
+
+Chế độ mặc định vẫn là `case="preserve"`: giữ nguyên case input như cũ.
 
 ## 5. Tool làm tốt những gì
 
