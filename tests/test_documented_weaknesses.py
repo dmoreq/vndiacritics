@@ -46,18 +46,19 @@ def test_does_not_damage_foreign_names(model):
     assert "Arsenal" in out and "Boeing" in out
 
 
-def test_number_adjacency_known_weakness(model):
-    """KNOWN BUG (docs/USAGE.md 4.1): a numeric token breaks the bigram chain.
+def test_number_adjacency_fixed(model):
+    """FIXED (docs/reports/2026-10-25-number-context-fix.md): a numeric token no
+    longer corrupts its neighbours.
 
-    Correct output is 'tăng 12.5% trong năm 2025'. The model currently produces
-    'tróng nằm' because the '12' column scores UNK and severs context.
-
-    If this test starts failing, the bug was fixed -- update the assertion and
-    remove the warning from docs/USAGE.md.
+    The '12' column still scores UNK and severs direct context, but the surviving
+    transition now carries n1-confidence (bigram_conf_k=1000): the corpus-typo
+    pair 'tróng nằm' (2/53) can no longer outrank 'trong năm' (71,291/2.9M).
+    If this test starts failing, the blend regressed -- re-run
+    bench/ab_confidence.py and update docs/USAGE.md section 4.1.
     """
     out = model.restore("tang 12.5% trong nam 2025")
-    assert out == "tăng 12.5% tróng nằm 2025", (
-        "Number-adjacency bug appears fixed; update docs/USAGE.md section 4.1"
+    assert out == "tăng 12.5% trong năm 2025", (
+        "Number-adjacency fix regressed; re-run bench/ab_confidence.py"
     )
 
 

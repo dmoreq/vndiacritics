@@ -101,42 +101,28 @@ Không có cách sửa nào rẻ — đã đo và bác bỏ (xem mục 6).
 Đây là các trường hợp tôi kiểm tra trực tiếp bằng input điển hình. **Chưa có test nào bao
 phủ**, nên cần biết.
 
-### 4.1. Số liền sau từ — làm hỏng cả cụm
+### 4.1. Số liền sau từ — ĐÃ SỬA (2026-10-25)
 
 ```
 Input : tang 12.5% trong nam 2025
-Output: tăng 12.5% tróng nằm 2025     <- SAI: "tróng nằm"
-Đúng  : tăng 12.5% trong năm 2025
+Output: tăng 12.5% trong năm 2025     <- đúng
 ```
 
-**Nguyên nhân**: `12.5%` tách thành core `12`, không có ứng viên nào, nên cột đó nhận điểm
-UNK. Điểm UNK phá chuỗi bigram cho các từ lân cận, khiến `trong` và `nam` bị chọn sai.
+**Lỗi cũ**: `12.5%` không có ứng viên, cột đó nhận điểm UNK và đứt chuỗi bigram; transition
+sống sót tiếp theo để cặp lỗi corpus `tróng nằm` (2/53) thắng `trong năm` (71,291/2.9M) vì
+tỷ lệ `log((n2+1)/(n1+1))` không tính độ tin cậy của mẫu số. `tróng` là từ thật ("hết nước,
+khô kiệt", vd *giếng tróng*), được 5 từ điển chứng thực — model chọn sai, corpus không bẩn.
+Chẩn đoán đầy đủ:
+[2026-10-23-number-context-root-cause.md](reports/2026-10-23-number-context-root-cause.md).
 
-Kiểm chứng: bigram `trong năm` = 486 lần, `trong nằm` = 10 lần. Model có đủ dữ liệu để đúng
-nhưng vẫn sai vì chuỗi bị đứt.
+**Cách sửa**: bigram score nay nội suy Jelinek-Mercer về unigram với `lambda = n1/(n1+K)`,
+K=1000 (đo bằng `bench/ab_confidence.py`; K=1000 tốt nhất trên cả hai corpus: in-domain
+96.01% → 96.05%, out-domain 95.24% → 95.58%). Ghi chú kỹ thuật:
+[2026-10-25-number-context-fix.md](reports/2026-10-25-number-context-fix.md).
 
-**Ảnh hưởng**: mọi văn bản có số, phần trăm, mã, ngày tháng — tức là hầu hết văn bản hành
-chính và báo cáo.
-
-Nguyên nhân sâu hơn (đã chẩn đoán, xem
-[2026-10-23-number-context-root-cause.md](reports/2026-10-23-number-context-root-cause.md)):
-khi context đứt, model có thể chọn một **từ rất hiếm** thay vì từ đúng phổ biến, vì cặp xuất
-hiện 2 lần với mẫu số 53 cho tỷ lệ cao hơn cặp xuất hiện 71,291 lần với mẫu số 2.9 triệu.
-Đây là overfit vào dữ liệu thưa, không chỉ là mất context.
-
-Lưu ý: `tróng` (trong câu ví dụ trên) **không phải lỗi chính tả** — nó là từ thật trong tiếng
-Việt (nghĩa "hết nước, khô kiệt", vd *giếng tróng*) và được cả 5 từ điển đối chiếu chứng thực.
-Lỗi là model **chọn sai từ**, không phải corpus bẩn.
-
-Câu ngắn không có số thì đúng:
-```
-thang 12   -> tháng 12    ✓
-nam 2025   -> năm 2025    ✓
-quy 4 nam 2025 -> quy 4 năm 2025  ✓ (chỉ "quy" sai)
-```
-
-**Cách phòng**: tách số ra khỏi câu trước khi restore, hoặc kiểm tra lại các từ ngay trước
-và sau con số.
+Vẫn nên kiểm tra các từ ngay trước và sau con số trong văn bản quan trọng: context qua cột
+số vẫn bị đứt, fix dựa vào transition còn lại; câu cực ngắn có số vẫn có thể sai từ khác
+(`quy 4 nam 2025` vẫn chỉ đúng vì `quy` chưa sửa được).
 
 ### 4.2. Đại từ `ban` (bạn) bị hiểu thành `bán` (bán)
 
@@ -223,6 +209,6 @@ model chọn đúng từ phổ biến nhất, tức model "tin" sai một cách 
 
 ## 8. Tóm tắt một câu
 
-Tool đạt 96.01% trên văn bản tin tức và 89.89% trên hội thoại; điểm yếu đã xác nhận là **số
-chen giữa câu làm hỏng từ lân cận** và **từ ngắn thiếu context**; 4% còn lại là nhập nhằng
-từ vựng thật mà ba hướng sửa rẻ đều đã đo và thất bại.
+Tool đạt 96.05% trên văn bản tin tức và 89.89% trên hội thoại; lỗi **số chen giữa câu làm
+hỏng từ lân cận đã được sửa ngày 2026-10-25**; điểm yếu còn lại là **từ ngắn thiếu context**;
+4% còn lại là nhập nhằng từ vựng thật mà ba hướng sửa rẻ đều đã đo và thất bại.

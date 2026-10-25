@@ -42,6 +42,7 @@ class Restorer:
         bigram_total: int | None = None,
         max_candidates: int | None = 8,
         bigram_skip_below: int | None = None,
+        bigram_conf_k: int | None = None,
     ) -> None:
         self._uni = unigram
         self._idx = index
@@ -77,6 +78,28 @@ class Restorer:
         if total is None:
             total = sum(bigram.values())  # type: ignore[attr-defined]
         self._unk = math.log(1.0 / (2 * (size + total + 1)))
+        # Jelinek-Mercer confidence for the bigram score. The raw ratio
+        # log((n2+1)/(n1+1)) lets a pair observed twice over a tiny denominator
+        # (2/53) outrank a massive one (71,291/2.9M): the ratio carries no sense
+        # of how much the denominator can be trusted. bigram_conf_k blends the
+        # bigram ratio toward the current word's unigram probability with
+        # lambda = n1/(n1+K), so evidence from a thin context shrinks toward the
+        # unigram prior. Measured sweep on the reference corpus
+        # (bench/ab_confidence.py): K=1000 is best on BOTH golds (in-domain
+        # 96.05% vs 96.01% legacy, out-domain 95.58% vs 95.24%) and fixes the
+        # number-context bug; K=10000 regresses in-domain.
+        #
+        # Default scales with corpus mass, same lesson as bigram_skip_below: an
+        # absolute K=1000 is 2.5e-6 of the reference corpus (400.5M tokens) but
+        # 41% of a toy table, where it drowns real bigram evidence. Auto mode
+        # keeps the measured K on the reference corpus and ~0 (legacy scoring)
+        # on small tables. Pass 0 to disable, or an explicit int to force one.
+        # Re-measure K after any corpus change (see WS2 in
+        # docs/reports/2026-10-25-number-context-fix.md).
+        if bigram_conf_k is None:
+            bigram_conf_k = int(self._t1 * 1000 / 400_508_022)
+        self._conf_k = bigram_conf_k
+        self._uni_denom = self._t1 + self._v1
 
     @staticmethod
     def _split_punct(token: str) -> tuple[str, str, str]:
@@ -137,6 +160,19 @@ class Restorer:
         out.append(text[end:])
         return "".join(out)
 
+    def _transition_score(self, n1: int, n2: int, kp_uni: float) -> float:
+        """Score one (prev, cur) pair from bigram evidence. Load-bearing arithmetic.
+
+        conf_k > 0: Jelinek-Mercer pseudo-count form p = (n2 + K*p_uni)/(n1 + K).
+        conf_k = 0: the reference formula log((n2+1)/(n1+1)), unchanged. Zero
+        bigram evidence scores UNK either way. See the __init__ note.
+        """
+        if n1 > 0 and n2 > 0:
+            if self._conf_k > 0:
+                return math.log((n2 + kp_uni) / (n1 + self._conf_k))
+            return math.log((n2 + 1) / (n1 + 1))
+        return self._unk
+
     def _best_transition(
         self,
         prev_col: list[str],
@@ -153,6 +189,13 @@ class Restorer:
         uni_get = self._uni.get
         bi_get = self._bi.get
         skip_below = self._bigram_skip_below
+        conf_k = self._conf_k
+        uni_denom = self._uni_denom
+        # K * p_uni(cur) is a per-COLUMN constant: hoisted here it turns the
+        # Jelinek-Mercer blend into one add + one div + one log per pair --
+        # the same op count as the legacy formula, so the fix costs no
+        # throughput. p = (n2 + K*p_uni) / (n1 + K) == lam*(n2/n1) + (1-lam)*p_uni.
+        kp_uni = conf_k * (uni_get(cur, 0) + 1) / uni_denom if conf_k > 0 else 0.0
         best = _MIN
         arg = 0
         cur_ok = skip_below <= 0 or uni_get(cur, 0) >= skip_below
@@ -162,12 +205,9 @@ class Restorer:
                 n2 = bi_get(prev + " " + cur, 0)
             else:
                 n2 = 0
-            if n1 > 0 and n2 > 0:
-                s = prev_score[k] + math.log((n2 + 1) / (n1 + 1))
-            else:
-                s = prev_score[k] + self._unk
+            s = prev_score[k] + self._transition_score(n1, n2, kp_uni)
             if add_prior:
-                s += math.log((n1 + 1) / (self._t1 + self._v1))
+                s += math.log((n1 + 1) / uni_denom)
             if s > best:
                 best = s
                 arg = k

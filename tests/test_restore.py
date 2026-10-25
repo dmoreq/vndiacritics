@@ -13,6 +13,29 @@ def test_single_word_picks_most_common():
     assert r.restore("con") == "còn"
 
 
+def test_confidence_blend_prefers_massive_denominator():
+    """The number-context fix in miniature (docs/reports/2026-10-25-number-context-fix.md).
+
+    Structure mirrors the real bug: 'trong'/'tróng' both score UNK after the
+    severed column, so the surviving transition decides. Legacy picks 'tróng
+    nằm' because 5/100 > 30000/1000000 -- the raw ratio ignores how much the
+    denominator can be trusted. With bigram_conf_k forced on, the thin context
+    shrinks toward the unigram and 'trong năm' wins.
+    """
+    uni = {"trong": 1000000, "tróng": 100, "năm": 5000, "nằm": 50, "x": 1}
+    bi = {"tróng nằm": 5, "trong năm": 30000}
+    r = Restorer(uni, CandidateIndex(uni), bi, bigram_conf_k=1000)
+    assert r.restore("x trong nam") == "x trong năm"
+
+
+def test_confidence_blend_zero_is_legacy():
+    """bigram_conf_k=0 must reproduce the reference arithmetic exactly."""
+    uni = {"trong": 1000000, "tróng": 100, "năm": 5000, "nằm": 50, "x": 1}
+    bi = {"tróng nằm": 5, "trong năm": 30000}
+    r = Restorer(uni, CandidateIndex(uni), bi, bigram_conf_k=0)
+    assert r.restore("x trong nam") == "x tróng nằm"
+
+
 def test_context_overrides_unigram():
     """'còn' is more common alone, but 'công ty' is a far stronger bigram."""
     uni = {"công": 1000, "ty": 500, "con": 10, "còn": 900}
