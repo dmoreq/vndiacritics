@@ -34,5 +34,6 @@ addopts = "-q"
 [tool.ruff]
 line-length = 100
 # Archived analysis scripts are historical: they hardcode absolute paths and reach into
-# private Restorer members. See bench/archive/README.md.
-exclude = ["bench/archive"]
+# private Restorer members. See bench/archive/README.md. Dated reports record past
+# states and must not be churned by formatting.
+exclude = ["bench/archive", "docs/reports"]

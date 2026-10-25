@@ -26,8 +26,10 @@ def main() -> int:
     DST.mkdir(parents=True, exist_ok=True)
 
     kept_uni = dropped_uni = 0
-    with open(SRC / "uni.tsv", encoding="utf-8", newline="") as src, \
-            open(DST / "uni.tsv", "w", encoding="utf-8", newline="") as dst:
+    with (
+        open(SRC / "uni.tsv", encoding="utf-8", newline="") as src,
+        open(DST / "uni.tsv", "w", encoding="utf-8", newline="") as dst,
+    ):
         for line in src:
             key, _, _count = line.rstrip("\n").rpartition("\t")
             if key in drop:
@@ -37,8 +39,10 @@ def main() -> int:
             kept_uni += 1
 
     kept_bi = dropped_bi = 0
-    with open(SRC / "bi.tsv", encoding="utf-8", newline="") as src, \
-            open(DST / "bi.tsv", "w", encoding="utf-8", newline="") as dst:
+    with (
+        open(SRC / "bi.tsv", encoding="utf-8", newline="") as src,
+        open(DST / "bi.tsv", "w", encoding="utf-8", newline="") as dst,
+    ):
         for line in src:
             key, _, _count = line.rstrip("\n").rpartition("\t")
             left, _, right = key.partition(" ")

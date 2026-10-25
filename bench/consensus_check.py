@@ -113,8 +113,7 @@ class Sources:
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--verify", nargs="*", default=[], help="words to check")
-    ap.add_argument("--corpus-typos", action="store_true",
-                    help="check every corpus typo candidate")
+    ap.add_argument("--corpus-typos", action="store_true", help="check every corpus typo candidate")
     args = ap.parse_args()
 
     src = Sources()
@@ -122,8 +121,10 @@ def main() -> int:
     print("sources loaded:")
     for name, lst in src.lists.items():
         print(f"  {name:<12} {len(lst):>7,} entries")
-    print(f"  {'underthesea':<12} {len(src.uts):>7,} entries "
-          f"({sum(1 for v in src.uts.values() if len(v)>=2):,} with 2+ upstreams)")
+    print(
+        f"  {'underthesea':<12} {len(src.uts):>7,} entries "
+        f"({sum(1 for v in src.uts.values() if len(v) >= 2):,} with 2+ upstreams)"
+    )
     print(f"  {'TOTAL':<12} {total:,} (lists overlap; not a union size)")
     print()
 

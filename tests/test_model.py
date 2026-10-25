@@ -31,9 +31,7 @@ def test_uses_trie_not_dict(tmp_path):
 
     (tmp_path / "uni.tsv").write_text("công\t1000\nty\t500\ncon\t10\ncòn\t900\n", encoding="utf-8")
     (tmp_path / "bi.tsv").write_text("công ty\t8000\ncông con\t1\ncông còn\t1\n", encoding="utf-8")
-    BigramStore.build(
-        {"công ty": 8000, "công con": 1, "công còn": 1}, tmp_path / "bi.trie"
-    )
+    BigramStore.build({"công ty": 8000, "công con": 1, "công còn": 1}, tmp_path / "bi.trie")
     m = Model.load(tmp_path)
     assert m.restore("cong con") == "công con"
 

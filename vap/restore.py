@@ -195,7 +195,5 @@ class Restorer:
     @staticmethod
     def _reapply_case(original: str, restored: str) -> str:
         n = min(len(original), len(restored))
-        chars = [
-            restored[i].upper() if original[i].isupper() else restored[i] for i in range(n)
-        ]
+        chars = [restored[i].upper() if original[i].isupper() else restored[i] for i in range(n)]
         return "".join(chars) + restored[n:]

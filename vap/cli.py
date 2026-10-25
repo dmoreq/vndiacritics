@@ -20,10 +20,7 @@ def _run_accuracy(model: Model, gold_file: Path) -> int:
     gold = [nfc(s) for s in split_sentences(gold_file.read_text(encoding="utf-8"))]
     pred = [model.restore(strip_accent_keep_case(g)) for g in gold]
     r = score(gold, pred)
-    print(
-        f"accuracy={r.accuracy:.4f} correct={r.correct} "
-        f"total={r.total} skipped={r.skipped}"
-    )
+    print(f"accuracy={r.accuracy:.4f} correct={r.correct} total={r.total} skipped={r.skipped}")
     return 0
 
 

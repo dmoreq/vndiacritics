@@ -33,9 +33,7 @@ class BigramStore:
     def build(cls, counts: dict[str, int], path: Path) -> None:
         path.parent.mkdir(parents=True, exist_ok=True)
         meta = {"size": len(counts), "total": sum(counts.values())}
-        trie = marisa_trie.BytesTrie(
-            (k, str(v).encode("ascii")) for k, v in counts.items()
-        )
+        trie = marisa_trie.BytesTrie((k, str(v).encode("ascii")) for k, v in counts.items())
         trie.save(str(path))
         cls._meta_path(path).write_text(json.dumps(meta), encoding="utf-8")
 

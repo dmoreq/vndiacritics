@@ -27,8 +27,24 @@ DICTS = ROOT / ".tmp/dicts"
 # regression -- `tróng` in particular is a real word ("drained, dry") that an
 # earlier heuristic wrongly flagged as a typo of `trong`.
 MUST_KEEP = {
-    "tróng", "trong", "long", "lỏng", "khanh", "hồng", "bệnh", "đường", "và", "xem",
-    "người", "được", "không", "những", "của", "với", "thành", "tăng",
+    "tróng",
+    "trong",
+    "long",
+    "lỏng",
+    "khanh",
+    "hồng",
+    "bệnh",
+    "đường",
+    "và",
+    "xem",
+    "người",
+    "được",
+    "không",
+    "những",
+    "của",
+    "với",
+    "thành",
+    "tăng",
 }
 
 

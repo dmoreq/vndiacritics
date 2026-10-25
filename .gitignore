@@ -16,4 +16,6 @@ vap/data-clean/*.tsv
 vap/data-clean/*.txt
 vap/data-clean/*.trie
 vap/data-clean/*.meta.json
-!vap/data-clean/typos.json
+# Derived from the unlicensed corpus plus mixed-license dictionaries; regenerate with
+# scripts/make_clean_corpus.py after fetch_dicts.sh + bench/build_typo_list.py.
+vap/data-clean/typos.json

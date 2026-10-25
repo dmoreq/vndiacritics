@@ -71,7 +71,7 @@ def main() -> int:
     print("ERROR FAMILIES")
     print("=" * 78)
     for f, n in fam_counts.most_common():
-        print(f"\n{f}: {n} tokens ({n/sum(fam_counts.values())*100:.1f}% of errors)")
+        print(f"\n{f}: {n} tokens ({n / sum(fam_counts.values()) * 100:.1f}% of errors)")
         for gt, pt, ctx, wctx in fam_examples[f][:4]:
             print(f"  gold={gt!r} got={pt!r}")
             print(f"    correct context: {ctx}")
@@ -94,8 +94,10 @@ def main() -> int:
         if forward and backward:
             total = forward + backward
             if total >= 3 and shown < 10:
-                print(f"\n  {a} <-> {b}: {total} errors total "
-                      f"(gold={a}: {forward}, gold={b}: {backward})")
+                print(
+                    f"\n  {a} <-> {b}: {total} errors total "
+                    f"(gold={a}: {forward}, gold={b}: {backward})"
+                )
                 for (g, p), n in ctr.most_common(4):
                     print(f"    {n:2d}x gold={g!r} got={p!r}")
                 shown += 1
