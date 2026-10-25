@@ -5,13 +5,22 @@ to make a change visible: if someone fixes the number-adjacency bug, these tests
 fail and the docs must be updated. They are not acceptance criteria for perfection.
 """
 
+import os
 from pathlib import Path
 
 import pytest
 
-pytestmark = pytest.mark.skipif(
-    not Path("vap/data/uni.tsv").exists(), reason="corpus not recovered"
-)
+CORPUS = Path(__file__).resolve().parents[1] / "vap" / "data" / "uni.tsv"
+
+if os.environ.get("VAP_REQUIRE_CORPUS") == "1" and not CORPUS.exists():
+
+    def test_corpus_recovered() -> None:
+        pytest.fail(
+            f"VAP_REQUIRE_CORPUS=1 but corpus is missing at {CORPUS}; run ./scripts/recover_data.sh"
+        )
+
+else:
+    pytestmark = pytest.mark.skipif(not CORPUS.exists(), reason="corpus not recovered")
 
 
 @pytest.fixture(scope="module")
@@ -25,7 +34,10 @@ def test_preserves_case_emoji_url_and_numbers(model):
     """Documented strengths: pass-through of anything that is not a Vietnamese word."""
     assert model.restore("CONG TY TNHH MOT THANH VIEN") == "CÔNG TY TNHH MỘT THÀNH VIÊN"
     assert model.restore("chao ban 😀 rat vui") == "chào bán 😀 rất vui"
-    assert model.restore("xem tai https://example.com/tin-tuc") == "xem tại https://example.com/tin-tuc"
+    assert (
+        model.restore("xem tai https://example.com/tin-tuc")
+        == "xem tại https://example.com/tin-tuc"
+    )
 
 
 def test_does_not_damage_foreign_names(model):

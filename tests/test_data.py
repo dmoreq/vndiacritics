@@ -31,7 +31,8 @@ def test_parse_count_table_handles_crlf(tmp_path):
 
 
 @pytest.mark.skipif(
-    not Path("vap/data/uni.tsv").exists(), reason="corpus not recovered"
+    not (Path(__file__).resolve().parents[1] / "vap" / "data" / "uni.tsv").exists(),
+    reason="corpus not recovered",
 )
 def test_load_unigram_real_corpus():
     g = load_unigram()

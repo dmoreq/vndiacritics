@@ -7,16 +7,29 @@ Both must clear the threshold; a change that helps one and hurts the other is a 
 not a gain.
 """
 
+import os
 from pathlib import Path
 
 import pytest
 
-pytestmark = pytest.mark.skipif(
-    not Path("vap/data/uni.tsv").exists(), reason="corpus not recovered"
-)
+# Anchor to the repo root so the gates run no matter where pytest is invoked from.
+CORPUS = Path(__file__).resolve().parents[1] / "vap" / "data" / "uni.tsv"
 
-IN_DOMAIN = "vap/data/in_domain.txt"
-OUT_DOMAIN = "bench/data/diacritic_eval_v0.txt"
+# CI sets VAP_REQUIRE_CORPUS=1 so a missing corpus fails the run instead of
+# silently skipping the most valuable tests. Locally, absence just skips.
+if os.environ.get("VAP_REQUIRE_CORPUS") == "1" and not CORPUS.exists():
+
+    def test_corpus_recovered() -> None:
+        pytest.fail(
+            f"VAP_REQUIRE_CORPUS=1 but corpus is missing at {CORPUS}; run ./scripts/recover_data.sh"
+        )
+
+else:
+    pytestmark = pytest.mark.skipif(not CORPUS.exists(), reason="corpus not recovered")
+
+ROOT = Path(__file__).resolve().parents[1]
+IN_DOMAIN = ROOT / "vap" / "data" / "in_domain.txt"
+OUT_DOMAIN = ROOT / "bench" / "data" / "diacritic_eval_v0.txt"
 
 
 @pytest.fixture(scope="module")
