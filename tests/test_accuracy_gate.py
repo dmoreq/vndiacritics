@@ -21,7 +21,7 @@ if os.environ.get("VNDIACRITICS_REQUIRE_CORPUS") == "1" and not CORPUS.exists():
 
     def test_corpus_recovered() -> None:
         pytest.fail(
-            f"VNDIACRITICS_REQUIRE_CORPUS=1 but corpus is missing at {CORPUS}; run ./scripts/recover_data.sh"
+            f"VNDIACRITICS_REQUIRE_CORPUS=1 but corpus is missing at {CORPUS}; run ./scripts/fetch_corpus.sh"
         )
 
 else:

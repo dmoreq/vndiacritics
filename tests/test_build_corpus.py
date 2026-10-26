@@ -102,12 +102,11 @@ def test_case_statistics():
     assert b.case["tôi"].lower == 1
 
 
-def test_allcap_goes_to_abbreviations():
+def test_allcap_counts_in_case_stats():
     b = make_builder()
     b.add_line("Ngân hàng TMCP DNA Việt Nam\n")
     assert b.case["dna"].allcap == 1
-    assert b.abbr["DNA"] == 1
-    assert b.case["tmcp"].allcap == 1 and b.abbr["TMCP"] == 1
+    assert b.case["tmcp"].allcap == 1
 
 
 def test_case_bi_requires_mid_sentence_capitalization():
@@ -136,7 +135,7 @@ def test_determinism(tmp_path):
     out1, out2 = tmp_path / "o1", tmp_path / "o2"
     bc.main([str(src), "--outdir", str(out1)])
     bc.main([str(src), "--outdir", str(out2)])
-    for name in ("uni.tsv", "bi.tsv", "case.tsv", "case_bi.tsv", "abbreviations.txt"):
+    for name in ("uni.tsv", "bi.tsv", "case.tsv", "case_bi.tsv"):
         assert (out1 / name).read_bytes() == (out2 / name).read_bytes()
 
 

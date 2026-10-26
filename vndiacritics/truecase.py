@@ -49,7 +49,7 @@ CONTINUATION_WEIGHT = 10
 _SENTENCE_END = frozenset(".!?…")
 _CLOSERS = "\"')]}>"
 
-# The gazetteer files are fetched by scripts/fetch_corpus_v2.sh; absence is
+# The gazetteer files are fetched by scripts/fetch_corpus.sh; absence is
 # normal and just disables the gazetteer bonus.
 GAZETTEER_FILES = ("names_persons.txt", "names_places.txt")
 
@@ -97,7 +97,7 @@ def load_case_tables(directory: Path) -> CaseStats:
     if not path.exists():
         raise FileNotFoundError(
             f"case statistics not found at {path}; corpus v2 is required for "
-            "case='correct' (build with scripts/fetch_corpus_v2.sh)"
+            "case='correct' (build with scripts/fetch_corpus.sh)"
         )
     stats = CaseStats()
     for key, (lo, ca, ac, ini) in _read_count_rows(path, 5):

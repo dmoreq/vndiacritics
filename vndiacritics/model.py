@@ -23,7 +23,7 @@ class Model:
         # Fail with the command that fixes it instead of a bare FileNotFoundError.
         if not (d / "uni.tsv").exists():
             raise FileNotFoundError(
-                f"corpus not found at {d}. Build it with:  ./scripts/recover_data.sh  "
+                f"corpus not found at {d}. Build it with:  ./scripts/fetch_corpus.sh  "
                 f"(or pass directory=... pointing at a corpus directory)"
             )
         unigram = load_unigram(d / "uni.tsv")
@@ -40,7 +40,7 @@ class Model:
             if bi_source is None:
                 raise FileNotFoundError(
                     f"bigram table not found in {d} (expected bi.tsv or bi.tsv.gz); "
-                    "run scripts/recover_data.sh or scripts/fetch_corpus_v2.sh"
+                    "run scripts/fetch_corpus.sh"
                 )
             BigramStore.build(load_bigram(bi_source), trie_path)
         store = BigramStore.load(trie_path)

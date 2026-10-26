@@ -6,23 +6,19 @@ __pycache__/
 vndiacritics/data/*.trie
 vndiacritics/data/*.tsv
 vndiacritics/data/*.txt
+vndiacritics/data/*.json
+vndiacritics/data/*.gz
 .hermes/
 Vietnamese-Accent-Prediction/
 *.tar.xz
 .tmp/
 
-# Generated clean corpus (rebuild with scripts/make_clean_corpus.py)
-vndiacritics/data-clean/*.tsv
-vndiacritics/data-clean/*.txt
-vndiacritics/data-clean/*.trie
-vndiacritics/data-clean/*.meta.json
-# Derived from the unlicensed corpus plus mixed-license dictionaries; regenerate with
-# scripts/make_clean_corpus.py after fetch_dicts.sh + bench/build_typo_list.py.
-vndiacritics/data-clean/typos.json
 .zcode/
 bench/baseline_results_*.json
-vndiacritics/data-v2/
 bench/cased_eval_results.json
-vndiacritics/data-v2b/
 vndiacritics/data/*.gz
 vndiacritics/data-v2b/*.gz
+
+# Local agent configs
+.agents/
+.claude/

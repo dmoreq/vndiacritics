@@ -7,7 +7,7 @@ git clone https://github.com/dmoreq/vndiacritics.git
 cd vndiacritics
 python -m venv .venv && source .venv/bin/activate
 pip install -e ".[dev]"
-./scripts/recover_data.sh   # fetches the corpus from the pinned upstream commit
+./scripts/fetch_corpus.sh   # builds the corpus (~3GB downloads, ~40 min)
 pre-commit install          # optional but recommended
 ```
 
