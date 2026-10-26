@@ -97,4 +97,18 @@ cat > "$OUT/model.json" <<JSON
   "note": "Measured with bench/ab_confidence.py on this mixture (2026-10-25): K=1000 maximizes both golds. Re-run the sweep after any mixture change."
 }
 JSON
+# Build the trie eagerly and keep the 151 MB merged TSV compressed (same
+# convention as recover_data.sh); Model.load rebuilds from bi.tsv.gz when needed.
+"$PY" - "$ROOT" "$OUT" <<'PYEOF'
+import sys
+from pathlib import Path
+root, out = Path(sys.argv[1]), Path(sys.argv[2])
+sys.path.insert(0, str(root))
+from vndiacritics.data import load_bigram
+from vndiacritics.store import BigramStore
+BigramStore.build(load_bigram(out / "bi.tsv"), out / "bi.trie")
+print("trie built:", out / "bi.trie")
+PYEOF
+gzip -9 -f "$OUT/bi.tsv"
+
 echo "corpus v2 ready"

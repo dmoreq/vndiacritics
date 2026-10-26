@@ -2,9 +2,17 @@
 
 from __future__ import annotations
 
+import gzip
 from pathlib import Path
 
 DATA_DIR = Path(__file__).resolve().parent / "data"
+
+
+def _open_text(path: Path):
+    """Open a count table for reading; .gz tables are decompressed on the fly."""
+    if path.suffix == ".gz":
+        return gzip.open(path, "rt", encoding="utf-8", newline="")
+    return open(path, encoding="utf-8", newline="")
 
 
 def parse_count_table(path: Path) -> dict[str, int]:
@@ -12,10 +20,11 @@ def parse_count_table(path: Path) -> dict[str, int]:
 
     Splits on the LAST tab so multi-word keys survive intact. Rows whose count is
     not an integer, or whose key is empty, are skipped rather than raising: the
-    source corpora contain a handful of malformed lines.
+    source corpora contain a handful of malformed lines. Plain and gzip-compressed
+    tables are both accepted.
     """
     out: dict[str, int] = {}
-    with open(path, encoding="utf-8", newline="") as fh:
+    with _open_text(path) as fh:
         for line in fh:
             line = line.rstrip("\r\n")
             if not line:

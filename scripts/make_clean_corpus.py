@@ -6,13 +6,22 @@ byte-for-byte so both corpora are graded on exactly the same sentences.
 
 from __future__ import annotations
 
+import gzip
 import json
 import sys
 from pathlib import Path
+from typing import IO
 
 ROOT = Path(__file__).resolve().parent.parent
 SRC = ROOT / "vndiacritics/data"
 DST = ROOT / "vndiacritics/data-clean"
+
+
+def _open_source(path: Path) -> IO[str]:
+    """Plain or gzip-compressed count table, as text lines."""
+    if path.suffix == ".gz":
+        return gzip.open(path, "rt", encoding="utf-8", newline="")
+    return open(path, encoding="utf-8", newline="")
 
 
 def main() -> int:
@@ -39,8 +48,11 @@ def main() -> int:
             kept_uni += 1
 
     kept_bi = dropped_bi = 0
+    bi_source = SRC / "bi.tsv"
+    if not bi_source.exists():
+        bi_source = SRC / "bi.tsv.gz"  # recovery keeps the large TSV compressed
     with (
-        open(SRC / "bi.tsv", encoding="utf-8", newline="") as src,
+        _open_source(bi_source) as src,
         open(DST / "bi.tsv", "w", encoding="utf-8", newline="") as dst,
     ):
         for line in src:
