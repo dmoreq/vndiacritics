@@ -46,14 +46,32 @@ were intact. Recovery: the full `fetch_corpus.sh` run below rebuilt everything
 end-to-end, which simultaneously validated the new fresh-machine path (the
 absorbed v1-recovery step, all extracts, merge, trie, model.json, gazetteers).
 
-## 4. Re-measured on the shipped configuration
+## 4. Re-measured on the rebuilt corpus
 
-MEASUREMENTS PENDING PIPELINE COMPLETION — this section is filled by the same
-run that builds the corpus; see §6 for the gate values.
+The pipeline rebuild reproduced every number of the v0.2.1 data-v2b build
+exactly (per-source build stats, merged table sizes, trie size identical) —
+determinism holds end to end. Fresh measurements on the shipped corpus
+(model.json K=1000):
+
+| Gold | Accuracy | Throughput |
+|---|---:|---:|
+| in-domain 2017 news, split pipeline (8,995 tokens) | 94.96% | ~1,650 sent/s |
+| in-domain, line-split (9,085) | 95.00% | — |
+| out-domain overall, split (883) | **96.38%** | ~2,195 sent/s |
+| out-domain, line-split (777) | 95.88% | — |
+| news / official / contracts / conversational | 99.03 / 95.51 / 96.10 / **92.55%** | — |
+| cased eval (`case="correct"`, 603 tokens) | **90.38%** | — |
+
+vs the removed v1 default: in-domain −1.09, conversational +2.66, contracts
++0.98, news out-of-domain +0.49 — the pre-registered trade.
 
 ## 5. Gates re-pinned
 
-GATES PENDING MEASUREMENT.
+`tests/test_accuracy_gate.py`: in-domain split >= 94.85 (94.96), in-domain
+line-split >= 94.90 (95.00), out-domain split >= 96.25 (96.38), out-domain
+line-split >= 95.75 (95.88). `tests/test_data.py`: the real-corpus check now
+asserts the mixture scale (>= 2.9M types, công > 1M measured 5.96M). 99 tests
+pass; VNDIACRITICS_REQUIRE_CORPUS=1 enforced.
 
 ## 6. Reproduce
 

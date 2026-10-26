@@ -39,8 +39,8 @@ Apple M3, Python 3.13, single process, no GPU.
 
 | Dataset | Tokens | Accuracy | Sentences/s |
 |---|---:|---:|---:|
-| in-domain news (589 sentences, the 2017 upstream gold) | 8995 | 94.96% | ~1,050 |
-| out-of-domain, all registers (55 sentences) | 883 | **96.38%** | ~1,670 |
+| in-domain news (589 sentences, the 2017 upstream gold) | 8995 | 94.96% | ~1,650 |
+| out-of-domain, all registers (55 sentences) | 883 | **96.38%** | ~2,195 |
 | cased eval, `case="correct"` | 603 | **90.38%** | — |
 
 History note: through v0.2.x the default corpus was the 2017 news tables alone

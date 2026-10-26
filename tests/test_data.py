@@ -36,7 +36,6 @@ def test_parse_count_table_handles_crlf(tmp_path):
 )
 def test_load_unigram_real_corpus():
     g = load_unigram()
-    # 216448 lines in the file, but the first is "\t587" (empty key) which is
-    # correctly rejected, leaving 216447 distinct keys.
-    assert len(g) == 216447
+    # The shipped mixture (lite profile): ~2.97M types across four sources.
+    assert len(g) >= 2_900_000
     assert g["công"] > 1_000_000
