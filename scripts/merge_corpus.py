@@ -37,7 +37,6 @@ TABLES = {
     "bi.tsv": 1,
     "case.tsv": 4,
     "case_bi.tsv": 1,
-    "abbreviations.txt": 1,
 }
 
 

@@ -1,6 +1,6 @@
 [project]
 name = "vndiacritics"
-version = "0.2.1"
+version = "0.3.0"
 description = "Vietnamese diacritic restoration"
 requires-python = ">=3.11"
 dependencies = ["marisa-trie>=1.2"]
@@ -17,15 +17,12 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["vndiacritics"]
-# The corpus is recovered by scripts/recover_data.sh, not shipped: uni.tsv plus the
-# bigram trie are ~25 MB and the raw bigram table is 80 MB. Hatchling already drops
-# *.tsv/*.trie, but it keeps *.json, so bi.meta.json and the clean-corpus typo list
-# would ship without the data they describe. Exclude the data trees explicitly and let
-# Model.load() raise an instruction instead.
-exclude = [
-  "vndiacritics/data/**",
-  "vndiacritics/data-clean/**",
-]
+# The corpus is built by scripts/fetch_corpus.sh, not shipped: uni.tsv plus the
+# bigram trie are ~90 MB. Hatchling already drops *.tsv/*.trie, but it keeps
+# *.json, so bi.meta.json and model.json would ship without the data they
+# describe. Exclude the data tree explicitly and let Model.load() raise an
+# instruction instead.
+exclude = ["vndiacritics/data/**"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

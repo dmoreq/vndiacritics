@@ -4,7 +4,8 @@
 - bare line split: the reference measurement's pipeline, 9085 tokens.
 
 Both must clear the threshold; a change that helps one and hurts the other is a bug,
-not a gain.
+not a gain. Thresholds measured on the shipped register-balanced corpus
+(docs/reports/2026-10-26-single-corpus.md).
 """
 
 import os
@@ -21,7 +22,7 @@ if os.environ.get("VNDIACRITICS_REQUIRE_CORPUS") == "1" and not CORPUS.exists():
 
     def test_corpus_recovered() -> None:
         pytest.fail(
-            f"VNDIACRITICS_REQUIRE_CORPUS=1 but corpus is missing at {CORPUS}; run ./scripts/recover_data.sh"
+            f"VNDIACRITICS_REQUIRE_CORPUS=1 but corpus is missing at {CORPUS}; run ./scripts/fetch_corpus.sh"
         )
 
 else:
@@ -66,25 +67,25 @@ def test_in_domain_split_pipeline(model):
     r = _grade_split(model, IN_DOMAIN)
     assert r.skipped == 0
     assert r.total == 8995
-    assert r.accuracy >= 0.959  # measured 96.01%
+    assert r.accuracy >= 0.9485  # measured 94.96% on the shipped mixture
 
 
 def test_in_domain_reference_pipeline(model):
-    """Reference corpus, line-split: 95.02% (8633/9085)."""
+    """Line-split: 95.00% on the shipped mixture."""
     r = _grade_lines(model, IN_DOMAIN)
     assert r.skipped == 0
     assert r.total == 9085
-    assert r.accuracy >= 0.957  # measured 95.98%
+    assert r.accuracy >= 0.9490  # measured 95.00%
 
 
 def test_out_of_domain_split_pipeline(model):
     r = _grade_split(model, OUT_DOMAIN)
     assert r.skipped == 0
-    assert r.accuracy >= 0.945  # measured 95.24%
+    assert r.accuracy >= 0.9625  # measured 96.38%
 
 
 def test_out_of_domain_reference_pipeline(model):
-    """Line-split keeps punctuation attached, which is the harsher case: 94.34%."""
+    """Line-split keeps punctuation attached, which is the harsher case: 95.88%."""
     r = _grade_lines(model, OUT_DOMAIN)
     assert r.skipped == 0
-    assert r.accuracy >= 0.935
+    assert r.accuracy >= 0.9575  # measured 95.88%

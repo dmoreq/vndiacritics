@@ -38,7 +38,6 @@ Outputs (into --outdir, sorted keys, deterministic for a given input):
                      when the second token is capitalized MID-SENTENCE
                      (proper-noun evidence; a sentence-initial cap carries no
                      information about the token being a proper noun)
-  abbreviations.txt  type <TAB> count         ALL-CAPS types, len >= 2
 
 Sentence boundary for "initial": start of line, or after any raw token whose
 trailing punctuation ends with . ! ? … (a raw token may carry trailing
@@ -84,7 +83,6 @@ class CorpusBuilder:
         self.bi: Counter[str] = Counter()
         self.case: dict[str, CaseCounts] = {}
         self.case_bi: Counter[str] = Counter()
-        self.abbr: Counter[str] = Counter()
         self._prune_at = prune_at
 
     def add_line(self, line: str) -> None:
@@ -116,8 +114,6 @@ class CorpusBuilder:
         stats = self.case.setdefault(key, CaseCounts())
         if _is_allcap(core):
             stats.allcap += 1
-            if len(core) >= 2:
-                self.abbr[core] += 1
         elif _is_capitalized(core):
             stats.cap += 1
             if initial:
@@ -208,9 +204,6 @@ def write_outputs(b: CorpusBuilder, outdir: Path) -> None:
     with open(outdir / "case_bi.tsv", "w", encoding="utf-8") as fh:
         for k in sorted(b.case_bi):
             fh.write(f"{k}\t{b.case_bi[k]}\n")
-    with open(outdir / "abbreviations.txt", "w", encoding="utf-8") as fh:
-        for k in sorted(b.abbr):
-            fh.write(f"{k}\t{b.abbr[k]}\n")
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -228,7 +221,7 @@ def main(argv: list[str] | None = None) -> int:
     write_outputs(b, args.outdir)
     print(
         f"uni={len(b.uni)} bi={len(b.bi)} case={len(b.case)} "
-        f"case_bi={len(b.case_bi)} abbr={len(b.abbr)} -> {args.outdir}"
+        f"case_bi={len(b.case_bi)} -> {args.outdir}"
     )
     return 0
 

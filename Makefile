@@ -12,7 +12,7 @@ help:
 
 install-dev:
 	pip install -e ".[dev]"
-	./scripts/recover_data.sh
+	./scripts/fetch_corpus.sh
 
 format:
 	ruff format vndiacritics tests bench

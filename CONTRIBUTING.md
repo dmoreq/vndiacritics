@@ -7,7 +7,7 @@ git clone https://github.com/dmoreq/vndiacritics.git
 cd vndiacritics
 python -m venv .venv && source .venv/bin/activate
 pip install -e ".[dev]"
-./scripts/recover_data.sh   # fetches the corpus from the pinned upstream commit
+./scripts/fetch_corpus.sh   # builds the corpus (~3GB downloads, ~40 min)
 pre-commit install          # optional but recommended
 ```
 
@@ -16,8 +16,8 @@ pre-commit install          # optional but recommended
 1. Run the targeted tests for what you touch: `pytest tests/test_restore.py -q`.
 2. Run lint and format before committing: `ruff check . && ruff format .`.
 3. The accuracy gates in `tests/test_accuracy_gate.py` pin measured numbers
-   (in-domain 96.01%). If your change moves them, the number must be re-measured
-   with `bench/baseline.py` and updated in the same change.
+   for the shipped corpus. If your change moves them, the number must be
+   re-measured with `bench/baseline.py` and updated in the same change.
 
 ## Conventions
 
@@ -31,6 +31,7 @@ pre-commit install          # optional but recommended
 
 ## Data licensing
 
-The corpus is fetched at setup from an upstream repository that has no LICENSE,
-so it is never committed here. Do not commit anything under
-`vndiacritics/data/` or `vndiacritics/data-clean/`.
+The corpus is built at setup from four fetched sources (one unlicensed, three
+permissively licensed); none of it is ever committed here. Do not commit
+anything under `vndiacritics/data/` — sources and licenses are listed in
+[CORPORA.md](CORPORA.md).

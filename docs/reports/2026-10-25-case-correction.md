@@ -4,8 +4,9 @@
 **Base**: commit `ff3310a`
 **Eval**: `bench/cased_eval.py` on `bench/data/cased_eval_v0.txt` (CC0, 40
 sentences, 603 tokens, 4 registers)
-**Data requirement**: corpus v2b (case.tsv / case_bi.tsv; v1 has none and
-`case="correct"` raises with the build command)
+**Data requirement**: case.tsv / case_bi.tsv in the shipped corpus (the
+2017-standalone corpus of v0.2.x had none; `case="correct"` raises with the
+build command)
 
 ## 1. Feature
 
@@ -55,7 +56,8 @@ Gate: >= 85% case-sensitive token accuracy — **PASS** (90.38%).
 
 (v0.2.1 numbers: the lite profile prunes singleton cased-bigrams from
 case_bi.tsv, which removed subtitle noise — conversational 90.44% -> 91.18%
-and overall 90.22% -> 90.38%.)
+and overall 90.22% -> 90.38%. Since v0.3.0 this corpus is the shipped
+default.)
 
 ## 3. Remaining error modes (~58/603 tokens)
 

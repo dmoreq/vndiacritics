@@ -26,18 +26,17 @@ Không dịch, không sửa chính tả, không đổi từ.
 
 | Loại văn bản | Độ chính xác | Dùng được? |
 |---|---:|---|
-| Tin tức, báo chí | **98.54%** | Tốt |
+| Tin tức, báo chí (out-of-domain) | **99.03%** | Tốt |
 | Văn bản hành chính, công văn | **95.51%** | Tốt |
-| Hợp đồng, kinh doanh | **95.12%** | Tốt |
-| **Hội thoại, chat, mạng xã hội** | **89.89%** | **Cần soát lại** |
+| Hợp đồng, kinh doanh | **96.10%** | Tốt |
+| **Hội thoại, chat, mạng xã hội** | **92.55%** | Tốt, vẫn nên soát |
+| Tin tức chuẩn 2017 (in-domain cũ) | 94.96% | Tốt |
 
 **Đây là điểm quan trọng nhất của tài liệu.** Chênh lệch giữa văn bản trang trọng và hội
-thoại là **8.65 điểm** — lớn hơn mọi khác biệt khác trong tool. Lý do: corpus huấn luyện là
-tin tức và Wikipedia, nên thiếu từ đệm khẩu ngữ (`nha`, `nhe`, `a`, `ha`).
-
-Cập nhật 2026-10-25: corpus tùy chọn **v2b** giảm chênh lệch này xuống 6.5 điểm (hội thoại
-92.55%) — chạy `--data vndiacritics/data-v2b`. Xem
-[reports/2026-10-25-corpus-v2.md](reports/2026-10-25-corpus-v2.md).
+thoại là **6.5 điểm** (v0.3.0, sau khi corpus trộn thêm phụ đề hội thoại — trước đây là
+8.65 điểm với corpus thuần tin tức). Xem
+[reports/2026-10-25-corpus-v2.md](reports/2026-10-25-corpus-v2.md) và
+[reports/2026-10-26-single-corpus.md](reports/2026-10-26-single-corpus.md).
 
 Nếu bạn xử lý chat, comment, tin nhắn: **phải đọc lại kết quả**.
 
@@ -150,11 +149,11 @@ tại.
 
 ## 4b. Khôi phục chữ hoa (`case="correct"`) — mới 2026-10-25
 
-Ngoài dấu thanh, tool có thể khôi phục CHỮ HOA từ corpus v2b (Wiki + phụ đề + văn bản
-pháp luật + corpus news gốc):
+Ngoài dấu thanh, tool có thể khôi phục CHỮ HOA từ corpus mặc định (Wiki + phụ đề +
+văn bản pháp luật + news):
 
 ```
-echo "toi o ha noi" | vndiacritics --data vndiacritics/data-v2b --case correct
+echo "toi o ha noi" | vndiacritics --case correct
 -> Tôi ở Hà Nội
 ```
 
@@ -229,6 +228,6 @@ model chọn đúng từ phổ biến nhất, tức model "tin" sai một cách 
 
 ## 8. Tóm tắt một câu
 
-Tool đạt 96.05% trên văn bản tin tức và 89.89% trên hội thoại; lỗi **số chen giữa câu làm
+Tool đạt 94.96% trên gold tin tức 2017, 99.03% trên tin tức mới và 92.55% trên hội thoại; lỗi **số chen giữa câu làm
 hỏng từ lân cận đã được sửa ngày 2026-10-25**; điểm yếu còn lại là **từ ngắn thiếu context**;
 4% còn lại là nhập nhằng từ vựng thật mà ba hướng sửa rẻ đều đã đo và thất bại.

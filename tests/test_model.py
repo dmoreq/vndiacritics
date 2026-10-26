@@ -51,7 +51,7 @@ def test_no_bigram_source_raises_actionable_error(tmp_path):
     (tmp_path / "bi.trie").unlink()
     (tmp_path / "bi.tsv.gz").unlink()
     (tmp_path / "bi.meta.json").unlink()
-    with pytest.raises(FileNotFoundError, match="recover_data"):
+    with pytest.raises(FileNotFoundError, match="fetch_corpus"):
         Model.load(tmp_path)
 
 

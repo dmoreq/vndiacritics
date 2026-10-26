@@ -100,7 +100,7 @@ class Restorer:
         # Re-measure K after any corpus change (see WS2 in
         # docs/reports/2026-10-25-number-context-fix.md).
         if bigram_conf_k is None:
-            bigram_conf_k = int(self._t1 * 1000 / 400_508_022)
+            bigram_conf_k = int(self._t1 * 1000 / 1_131_088_716)
         self._conf_k = bigram_conf_k
         self._uni_denom = self._t1 + self._v1
         # Optional statistical truecaser (corpus v2). None keeps the default
@@ -190,7 +190,7 @@ class Restorer:
             if self._truecaser_factory is None:
                 raise ValueError(
                     "case='correct' requires case statistics; this corpus has none "
-                    "(build corpus v2 with scripts/fetch_corpus_v2.sh)"
+                    "(run scripts/fetch_corpus.sh to build it)"
                 )
             self._truecaser = self._truecaser_factory()
         return self._truecaser
