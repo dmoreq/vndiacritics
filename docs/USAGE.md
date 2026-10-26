@@ -33,12 +33,9 @@ Không dịch, không sửa chính tả, không đổi từ.
 | Tin tức chuẩn 2017 (in-domain cũ) | 94.96% | Tốt |
 
 **Đây là điểm quan trọng nhất của tài liệu.** Chênh lệch giữa văn bản trang trọng và hội
-thoại là **8.65 điểm** — lớn hơn mọi khác biệt khác trong tool. Lý do: corpus huấn luyện là
-tin tức và Wikipedia, nên thiếu từ đệm khẩu ngữ (`nha`, `nhe`, `a`, `ha`).
-
-Cập nhật 2026-10-26 (v0.3.0): corpus mặc định nay là bản trộn cân bằng register (news
-2017 + Wikipedia + phụ đề + văn bản pháp luật) — chênh lệch còn 6.5 điểm, hội thoại
-92.55%. Xem [reports/2026-10-25-corpus-v2.md](reports/2026-10-25-corpus-v2.md) và
+thoại là **6.5 điểm** (v0.3.0, sau khi corpus trộn thêm phụ đề hội thoại — trước đây là
+8.65 điểm với corpus thuần tin tức). Xem
+[reports/2026-10-25-corpus-v2.md](reports/2026-10-25-corpus-v2.md) và
 [reports/2026-10-26-single-corpus.md](reports/2026-10-26-single-corpus.md).
 
 Nếu bạn xử lý chat, comment, tin nhắn: **phải đọc lại kết quả**.

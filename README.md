@@ -122,17 +122,17 @@ matter in practice, including a numeric token corrupting its neighbouring words.
 - Punctuation is split with a regex tuned to these corpora; exotic separators may pass through.
 - Proper nouns and foreign words are left unchanged when absent from the vocabulary, which is
   correct for names but wrong for loanwords that should carry diacritics.
-- Conversational text scores ~9 points below news text. Adding a conversational corpus would
-  narrow that gap more than any model change.
+- Conversational text remains the weakest register (6.5 points below news on the
+  shipped corpus); the mixture already closed 2.7 of the original 8.65-point gap.
 
 ## Roadmap
 
 - ~~Case correction~~ — shipped 2026-10-25 as `case="correct"` (90.38% case-sensitive
-  on the cased eval; needs corpus v2b). See
+  on the cased eval). See
   [docs/reports/2026-10-25-case-correction.md](docs/reports/2026-10-25-case-correction.md).
-- Conversational register: largely closed by corpus v2b (89.89% → 92.55%).
+- ~~Conversational register~~ — largely closed by the mixture (89.89% → 92.55%).
 - Persist the candidate index at corpus-build time: index construction is now
-  the load bottleneck (6.8s of the 7.4s on v2b lite); a marisa-backed index
+  the load bottleneck (6.8s of the 7.4s load); a marisa-backed index
   would cut the default load to well under 2 s.
 
 ## Data & license
@@ -142,5 +142,4 @@ redistributed: it is extracted at setup time from
 [tienthanhdhcn/Vietnamese-Accent-Prediction](https://github.com/tienthanhdhcn/Vietnamese-Accent-Prediction)
 at a pinned commit and verified by SHA-256, because that repository carries no
 license. Do not commit anything under `vndiacritics/data/`. The out-of-domain
-evaluation set is CC0 ([nom-vn](https://github.com/nom-vn)). Development-only
-dictionaries fetched by `scripts/fetch_dicts.sh` carry their own licenses.
+evaluation set is CC0 ([nom-vn](https://github.com/nom-vn)).

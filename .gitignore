@@ -17,7 +17,6 @@ Vietnamese-Accent-Prediction/
 bench/baseline_results_*.json
 bench/cased_eval_results.json
 vndiacritics/data/*.gz
-vndiacritics/data-v2b/*.gz
 
 # Local agent configs
 .agents/
